@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Flask + DB</title>
+</head>
+<body>
+    <h2>Add User</h2>
+    <form method="post">
+        <input name="name" placeholder="Enter name">
+        <button type="submit">Add</button>
+    </form>
+
+    <h3>User List</h3>
+    <ul>
+        {% for user in users %}
+            <li>{{ user[1] }}</li>  <!-- user[1] is the name -->
+        {% endfor %}
+    </ul>
+</body>
+</html>
