@@ -1,8 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Simple Flask + DB</title>
-</head>
+{% extends 'base.html' %}
+
+{% block title %}index{% endblock %}
+
+{% block content %}
 <body>
     <h2>Add User</h2>
     <form method="post">
@@ -16,5 +16,8 @@
             <li>{{ user[1] }}</li>  <!-- user[1] is the name -->
         {% endfor %}
     </ul>
+
+    <a href="/login" class="button-class">Go to Login</a>
+
 </body>
-</html>
+{% endblock %}

@@ -16,5 +16,20 @@ def home():
     
     return render_template("index.html", users=users)
 
+@app.route("/login", methods=["GET", "POST"])
+def desired_route():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        if username == "admin" and password == "pass":
+            return render_template("PropertyView.html")
+        
+        # Return the login page with an error message
+        return render_template("Login.html", error="Invalid username or password.")
+    
+    return render_template('Login.html')
+
+
 if __name__ == '__main__':
     app.run(debug=True)

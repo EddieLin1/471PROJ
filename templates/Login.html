@@ -1,13 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Rentify - Login</title>
-  <link rel="stylesheet" href="css/styles.css">
-</head>
+{% extends 'base.html' %}
+
+{% block title %}index{% endblock %}
+
+{% block content %}
 <body>
 <div class="container">
   <h2>Rentify Login</h2>
+  {% if error %}
+    <div class="alert alert-danger" role="alert">
+      {{ error }}
+    </div>
+  {% endif %}
   <form action="/login" method="post">
     <input type="text" placeholder="Username" name="username" required>
     <input type="password" placeholder="Password" name="password" required>
@@ -15,4 +18,4 @@
   </form>
 </div>
 </body>
-</html>
+{% endblock %}
