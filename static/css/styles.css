@@ -4,16 +4,6 @@ body {
     color: #333;
   }
   
-  .container {
-    width: 90%;
-    max-width: 800px;
-    margin: auto;
-    padding: 30px;
-    background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    border-radius: 5px;
-  }
-  
   h2 {
     margin-bottom: 20px;
     text-align: center;
@@ -63,3 +53,7 @@ body {
   tr:hover {
     background-color: #f1f5f9;
   }
+
+  .purple-bar {
+      background-color: rgb(207, 119, 234);
+    }
