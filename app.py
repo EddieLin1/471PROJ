@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session
 import sqlite3
 
 app = Flask(__name__)
+app.secret_key = "secret"
 
 @app.route("/", methods=["GET"])
 def home(): 
@@ -26,13 +27,40 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
 
-        if username == "admin" and password == "pass":
-            return render_template("PropertyView.html")
+        with sqlite3.connect("Homeapp.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM PERSON WHERE UserName = ? AND Password = ?", (username, password))
+            result = cursor.fetchone()
+            ps = conn.execute("SELECT * FROM property").fetchall()
+            
+            #setting permission getting SSN and permission access in session variable
+            if result:
+                #store name and access for login page and permissions
+                session['ssn'] = result[0]
+                session['name'] = result[1] + ' ' + result[2]
+                first_digit = str(result[0])[0]
+
+                match first_digit:
+                    case '1': 
+                        access = "client"
+                    case '2': 
+                        access = "homeowner"
+                    case '3': 
+                        access = "employee"
+
+                session["access"] = access
+                
+                return render_template("PropertyView.html", ps=ps)
         
         # Return the login page with an error message
         return render_template("Login.html", error="Invalid username or password.")
     
     return render_template('Login.html')
+
+@app.route("/logout", methods=["GET"])
+def logout():
+    session.clear()
+    return render_template("Login.html")
 
 @app.route("/contractor-view", methods=["GET"])
 def contractor():

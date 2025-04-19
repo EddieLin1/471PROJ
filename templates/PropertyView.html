@@ -27,4 +27,14 @@
     </tbody>
   </table>
 </div>
+<div class="d-flex gap-3">
+  <a href="/login" class="btn btn-primary">Go to Login</a>
+  <a href="/contractor-view" class="btn btn-secondary">Go to contractor view</a>
+  <a href="/lease-agreement-view" class="btn btn-success">Go to lease agreement view</a>
+  <a href="/property-view" class="btn btn-success">Go to property view</a>
+  <a href="/room-view" class="btn btn-success">Go to room view</a>
+  <p>Your SSN: {{ session['ssn'] }}</p>
+  <p>Your test: {{ session['access'] }}</p>
+  <p>Your test: {{ session['name'] }}</p>
+</div>
 {% endblock %}

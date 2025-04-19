@@ -96,9 +96,13 @@ def init_db():
     );
 
     CREATE TABLE IF NOT EXISTS WORKS_FOR (
+        OwnerSSN INTEGER,
         EmployeeSSN INTEGER,
         CompanyID INTEGER,
-        PRIMARY KEY (EmployeeSSN, CompanyID),
+        PRIMARY KEY (OwnerSSN, EmployeeSSN, CompanyID),
+        FOREIGN KEY (OwnerSSN) REFERENCES HOMEOWNER(SSN)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
         FOREIGN KEY (EmployeeSSN) REFERENCES EMPLOYEE(SSN)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
@@ -150,6 +154,7 @@ def insert_dummy_data():
         (2002, "Eva", "Wells", "eva", "pass123"),         # Homeowner
         (3001, "Frank", "Moore", "frank", "pass123"),     # Employee
         (3002, "Grace", "Kim", "grace", "pass123"),       # Employee
+        (3003, "Peter", "Janko", "peter", "pass123"),      # Employee
     ]
     cursor.executemany("INSERT OR IGNORE INTO PERSON VALUES (?, ?, ?, ?, ?)", persons)
 
@@ -162,16 +167,21 @@ def insert_dummy_data():
     # --- EMPLOYEES ---
     cursor.executemany("INSERT OR IGNORE INTO EMPLOYEE (SSN, JobType) VALUES (?, ?)", [
         (3001, "Technician"),
-        (3002, "Cleaner")
+        (3002, "Cleaner"),
+        (3003, "Plumber")
     ])
 
     # --- COMPANIES ---
-    cursor.execute("INSERT OR IGNORE INTO COMPANY VALUES (?, ?, ?)", (1, "AllFixers Inc", "Maintenance"))
+    cursor.executemany("INSERT OR IGNORE INTO COMPANY VALUES (?, ?, ?)", [
+        (1, "AllFixers Inc", "Maintenance"),
+        (2, "BigFixCompany Inc", "Maintenance")
+    ])
 
-    # --- UPDATED WORKS_FOR ---
-    cursor.executemany("INSERT OR IGNORE INTO WORKS_FOR (EmployeeSSN, CompanyID) VALUES (?, ?)", [
-        (3001, 1),
-        (3002, 1)
+    # --- WORKS_FOR ---
+    cursor.executemany("INSERT OR IGNORE INTO WORKS_FOR (OwnerSSN, EmployeeSSN, CompanyID) VALUES (?, ?, ?)", [
+        (2001, 3001, 1),
+        (2002, 3002, 1),
+        (2001, 3003, 2)
     ])
 
     # --- PROPERTIES ---
