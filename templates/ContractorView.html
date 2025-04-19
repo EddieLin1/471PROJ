@@ -1,32 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Rentify - Contractors</title>
-  <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}Contractor View{% endblock %}
+
+{% block content %}
 <div class="container">
   <h2>Contractors List</h2>
   <table>
     <thead>
       <tr>
-        <th>Contractor ID</th>
-        <th>Name</th>
+        <th>Contractor SSN</th>
         <th>Specialization</th>
-        <th>Contact</th>
       </tr>
     </thead>
     <tbody>
-      <!-- Dynamic backend content -->
+      <!-- Dynamic backend content -->    
+      {% for emp in emps %}
       <tr>
-        <td>C001</td>
-        <td>John Doe</td>
-        <td>Plumbing</td>
-        <td>555-1234</td>
+        <td>{{ emp[0] }}</td>  
+        <td>{{ emp[1] }}</td> 
       </tr>
+      {% endfor %} 
     </tbody>
   </table>
 </div>
-</body>
-</html>
+{% endblock %}

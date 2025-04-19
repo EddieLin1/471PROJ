@@ -1,32 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Rentify - Lease Agreements</title>
-  <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}Lease Agreement View{% endblock %}
+
+{% block content %}
 <div class="container">
-  <h2>Lease Agreements</h2>
+  <h2>Lease Agreement List</h2>
   <table>
     <thead>
       <tr>
-        <th>Lease ID</th>
-        <th>Property ID</th>
-        <th>Tenant Name</th>
-        <th>Duration</th>
+        <th>LeaseID</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+        <th>OwnerSSN</th>
+        <th>ClientSSN</th>
       </tr>
     </thead>
     <tbody>
-      <!-- Dynamic backend content -->
+      <!-- Dynamic backend content -->    
+      {% for la in las %}
       <tr>
-        <td>L001</td>
-        <td>1</td>
-        <td>Jane Smith</td>
-        <td>12 months</td>
+        <td>{{ la[0] }}</td>  
+        <td>{{ la[1] }}</td> 
+        <td>{{ la[2] }}</td> 
+        <td>{{ la[3] }}</td> 
+        <td>{{ la[4] }}</td> 
       </tr>
+      {% endfor %} 
     </tbody>
   </table>
 </div>
-</body>
-</html>
+{% endblock %}

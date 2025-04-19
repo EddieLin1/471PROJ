@@ -1,11 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Rentify - Service Requests</title>
-  <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}Service View{% endblock %}
+
+{% block content %}
 <div class="container">
   <h2>Service Requests</h2>
   <table>
@@ -28,5 +25,4 @@
     </tbody>
   </table>
 </div>
-</body>
-</html>
+{% endblock %}

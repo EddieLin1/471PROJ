@@ -3,28 +3,28 @@
 {% block title %}Property View{% endblock %}
 
 {% block content %}
-<body>
 <div class="container">
-  <h2>Available Properties</h2>
+  <h2>Properties List</h2>
   <table>
     <thead>
       <tr>
-        <th>Property ID</th>
+        <th>PropertyID</th>
         <th>Address</th>
-        <th>Status</th>
-        <th>View Details</th>
+        <th>Description</th>
+        <th>OwnerSSN</th>
       </tr>
     </thead>
     <tbody>
-      <!-- Dynamic rows populated via backend -->
+      <!-- Dynamic backend content -->    
+      {% for p in ps %}
       <tr>
-        <td>1</td>
-        <td>123 Main St.</td>
-        <td>Available</td>
-        <td><a href="#">View</a></td>
+        <td>{{ p[0] }}</td>  
+        <td>{{ p[1] }}</td> 
+        <td>{{ p[2] }}</td> 
+        <td>{{ p[3] }}</td> 
       </tr>
+      {% endfor %} 
     </tbody>
   </table>
 </div>
-</body>
 {% endblock %}

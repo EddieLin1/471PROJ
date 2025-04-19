@@ -1,32 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Rentify - Rooms</title>
-  <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}Room View{% endblock %}
+
+{% block content %}
 <div class="container">
-  <h2>Rooms Management</h2>
+  <h2>Room List</h2>
   <table>
     <thead>
       <tr>
-        <th>Room ID</th>
-        <th>Property ID</th>
-        <th>Size</th>
-        <th>Availability</th>
+        <th>PropertyID</th>
+        <th>Room Number</th>
+        <th>Condition</th>
+        <th>LeaseID</th>
       </tr>
     </thead>
     <tbody>
-      <!-- Dynamic content -->
+      <!-- Dynamic backend content -->    
+      {% for r in rs %}
       <tr>
-        <td>101</td>
-        <td>1</td>
-        <td>500 sq ft</td>
-        <td>Occupied</td>
+        <td>{{ r[0] }}</td>  
+        <td>{{ r[1] }}</td> 
+        <td>{{ r[2] }}</td> 
+        <td>{{ r[3] }}</td> 
       </tr>
+      {% endfor %} 
     </tbody>
   </table>
 </div>
-</body>
-</html>
+{% endblock %}
