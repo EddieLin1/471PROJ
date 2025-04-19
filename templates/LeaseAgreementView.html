@@ -1,9 +1,32 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Lease Agreements View</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block title %}Lease Agreement View{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2>Lease Agreement List</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>LeaseID</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+        <th>OwnerSSN</th>
+        <th>ClientSSN</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Dynamic backend content -->    
+      {% for la in las %}
+      <tr>
+        <td>{{ la[0] }}</td>  
+        <td>{{ la[1] }}</td> 
+        <td>{{ la[2] }}</td> 
+        <td>{{ la[3] }}</td> 
+        <td>{{ la[4] }}</td> 
+      </tr>
+      {% endfor %} 
+    </tbody>
+  </table>
+</div>
+{% endblock %}

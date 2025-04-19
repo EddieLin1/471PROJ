@@ -1,9 +1,28 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Service View</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block title %}Service View{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2>Service Requests</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Request ID</th>
+        <th>Room ID</th>
+        <th>Issue</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Dynamic content -->
+      <tr>
+        <td>SR001</td>
+        <td>101</td>
+        <td>Leaking Faucet</td>
+        <td>Pending</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+{% endblock %}
