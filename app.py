@@ -3,8 +3,12 @@ import sqlite3
 
 app = Flask(__name__)
 
-@app.route("/", methods=["GET", "POST"])
-def home():
+@app.route("/", methods=["GET"])
+def home(): 
+    return render_template("index.html")
+
+@app.route("/user", methods=["GET", "POST"])
+def user():
     if request.method == "POST":
         name = request.form["name"]
         with sqlite3.connect("Homeapp.db") as conn:
@@ -14,7 +18,7 @@ def home():
     with sqlite3.connect("Homeapp.db") as conn:
         users = conn.execute("SELECT * FROM person").fetchall()
     
-    return render_template("index.html", users=users)
+    return render_template("UserView.html", users=users)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():

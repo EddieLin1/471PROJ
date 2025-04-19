@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}index{% endblock %}
+
+{% block content %}
+
+<h2>Add User</h2>
+<form method="post">
+    <input name="name" placeholder="Enter name">
+    <button type="submit">Add</button>
+</form>
+
+<div class="container">
+    <h2>Person List</h2>
+    <table>
+      <thead>
+        <tr>
+            <th>SSN</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Dynamic backend content -->    
+        {% for user in users %}
+        <tr>
+          <td>{{ user[0] }}</td>  
+          <td>{{ user[1] }}</td> 
+          <td>{{ user[2] }}</td> 
+        </tr>
+        {% endfor %} 
+      </tbody>
+    </table>
+  </div>
+
+<div class="d-flex gap-3">
+    <a href="/login" class="btn btn-primary">Go to Login</a>
+    <a href="/contractor-view" class="btn btn-secondary">Go to contractor view</a>
+    <a href="/lease-agreement-view" class="btn btn-success">Go to lease agreement view</a>
+    <a href="/property-view" class="btn btn-success">Go to property view</a>
+    <a href="/room-view" class="btn btn-success">Go to room view</a>
+</div>
+
+
+{% endblock %}

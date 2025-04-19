@@ -22,16 +22,14 @@ body {
   }
   
   button {
-    padding: 10px;
-    background-color: #3b82f6;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+    background-color: white;
+    color: black;
+    border: 2px solid #555555;
   }
   
   button:hover {
-    background-color: #2563eb;
+    background-color: #555555;
+    color: white;
   }
   
   table {
@@ -55,5 +53,5 @@ body {
   }
 
   .purple-bar {
-      background-color: rgb(207, 119, 234);
+      background-color: rgb(128, 63, 212);
     }
