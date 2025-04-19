@@ -188,7 +188,7 @@ def insert_dummy_data():
     properties = [
         (4001, "101 Elm Street", "Apartment block A", 2001),  # Apartment
         (4002, "202 Oak Street", "Apartment block B", 2001),  # Apartment
-        (4003, "303 Pine Street", "Spacious house", 2002),    # House
+        (5001, "303 Pine Street", "Spacious house", 2002),    # House
     ]
     cursor.executemany("INSERT OR IGNORE INTO PROPERTY VALUES (?, ?, ?, ?)", properties)
 
@@ -199,33 +199,33 @@ def insert_dummy_data():
     ])
 
     # --- HOUSE ---
-    cursor.execute("INSERT OR IGNORE INTO HOUSE VALUES (?, ?)", (4003, 2))
+    cursor.execute("INSERT OR IGNORE INTO HOUSE VALUES (?, ?)", (5001, 2))
 
     # --- LEASE AGREEMENTS ---
     leases = [
-        (5001, "2024-01-01", "2025-01-01", 2001, 1001),  # Alice rents Apt 1
-        (5002, "2024-02-01", "2025-02-01", 2001, 1002),  # Bob rents Apt 2
-        (5003, "2024-03-01", "2025-03-01", 2002, 1003),  # Cara rents House
+        (6001, "2024-01-01", "2025-01-01", 2001, 1001),  # Alice rents Apt 1
+        (6002, "2024-02-01", "2025-02-01", 2001, 1002),  # Bob rents Apt 2
+        (6003, "2024-03-01", "2025-03-01", 2002, 1003),  # Cara rents House
     ]
     cursor.executemany("INSERT OR IGNORE INTO LEASEAGREEMENT VALUES (?, ?, ?, ?, ?)", leases)
 
     # --- ROOMS ---
     # Apartment 1 (3 rooms)
     for room_number in range(1, 4):
-        cursor.execute("INSERT OR IGNORE INTO ROOM VALUES (?, ?, ?, ?)", (4001, room_number, "Good", 5001))
+        cursor.execute("INSERT OR IGNORE INTO ROOM VALUES (?, ?, ?, ?)", (4001, room_number, "Good", 6001))
 
     # Apartment 2 (3 rooms)
     for room_number in range(1, 4):
-        cursor.execute("INSERT OR IGNORE INTO ROOM VALUES (?, ?, ?, ?)", (4002, room_number, "Good", 5002))
+        cursor.execute("INSERT OR IGNORE INTO ROOM VALUES (?, ?, ?, ?)", (4002, room_number, "Good", 6002))
 
     # House (4 rooms)
     for room_number in range(1, 5):
-        cursor.execute("INSERT OR IGNORE INTO ROOM VALUES (?, ?, ?, ?)", (4003, room_number, "Excellent", 5003))
+        cursor.execute("INSERT OR IGNORE INTO ROOM VALUES (?, ?, ?, ?)", (5001, room_number, "Excellent", 6003))
 
     # --- RENTS ---
     cursor.execute("INSERT OR IGNORE INTO RENTS VALUES (?, ?, ?)", (4001, 1, 1001))
     cursor.execute("INSERT OR IGNORE INTO RENTS VALUES (?, ?, ?)", (4002, 1, 1002))
-    cursor.execute("INSERT OR IGNORE INTO RENTS VALUES (?, ?, ?)", (4003, 1, 1003))
+    cursor.execute("INSERT OR IGNORE INTO RENTS VALUES (?, ?, ?)", (5001, 1, 1003))
 
     conn.commit()
     conn.close()

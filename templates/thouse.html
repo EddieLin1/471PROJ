@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Room View{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2>house list</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>PropertyID</th>
+        <th>Number of Floors</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Dynamic backend content -->    
+      {% for th in ths %}
+      <tr>
+        <td>{{ th[0] }}</td>  
+        <td>{{ th[1] }}</td> 
+      </tr>
+      {% endfor %} 
+    </tbody>
+  </table>
+</div>
+{% endblock %}
