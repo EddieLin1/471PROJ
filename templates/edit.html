@@ -19,7 +19,7 @@
             </div>
             <div class="mb-3">
                 <label for="updatedDescription" class="form-label">Updated Description</label>
-                <input type="text" class="form-control" id="updatedAddress" name="updatedAddress">
+                <input type="text" class="form-control" id="updatedDescription" name="updatedDescription">
             </div>
             
             <button type="submit" class="btn btn-primary">Update Property</button>
@@ -30,6 +30,10 @@
     <div class="mb-4">
         <h4>Add New Property</h4>
         <form method="POST" action="{{ url_for('add_property') }}">
+            <div class="mb-3">
+                <label for="confirmOwnerSSN" class="form-label">Confirm Owner SSN</label>
+                <input type="text" class="form-control" id="confirmOwnerSSN" name="confirmOwnerSSN" required>
+            </div>
             <div class="mb-3">
                 <label for="newPropertyID" class="form-label">Property ID</label>
                 <input type="text" class="form-control" id="newPropertyID" name="newPropertyID" required>

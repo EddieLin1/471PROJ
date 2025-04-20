@@ -115,9 +115,10 @@ def add_property():
     property_id = request.form["newPropertyID"]
     address = request.form["newAddress"]
     description = request.form["newDescription"]
+    owner_ssn = request.form["confirmOwnerSSN"]
     with sqlite3.connect("Homeapp.db") as conn:
-        conn.execute("INSERT INTO property (PropertyID, Address, Description) VALUES (?, ?, ?)",
-                     (property_id, address, description))
+        conn.execute("INSERT INTO property (PropertyID, Address, Description, OwnerSSN) VALUES (?, ?, ?, ?)",
+                     (property_id, address, description, owner_ssn))
     return render_template("edit.html")
 
 @app.route("/remove_property", methods=["POST"])
