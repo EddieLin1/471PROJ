@@ -130,13 +130,13 @@ def add_leaseagreement():
 
             cursor.execute("""
                 INSERT INTO LEASEAGREEMENT (LeaseID, StartDate, EndDate, OwnerSSN, ClientSSN)
-                VALUES (?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?)
             """, (new_id, start_date, end_date, session.get('ssn'), clientSSN))
 
         else:
             # --- UPDATE EXISTING ---
             cursor.execute("""
-                UPDATE LEASEAGREEMENT SET StartDate = ?, EndDate = ?, ClientSSN = ? WHERE PropertyID = ?
+                UPDATE LEASEAGREEMENT SET StartDate = ?, EndDate = ?, ClientSSN = ? WHERE LeaseID = ?
             """, (start_date, end_date, clientSSN, lease_id))
 
         conn.commit()
