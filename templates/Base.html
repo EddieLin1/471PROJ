@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Rentify Website{% endblock %}</title>
+    <title>{% block title %}Edit Properties{% endblock %}</title>
     
     <!-- bootstrap import -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -49,6 +49,97 @@
     <!-- Swappable Body Content -->
     <main class="container flex-grow-1">
         {% block content %}
+        <div class="container my-4">
+            <h2 class="mb-4">Manage Properties</h2>
+
+            <!-- Property Editing Section -->
+            <div class="mb-4">
+                <h4>Edit Existing Property</h4>
+                <form method="POST" action="/edit-property">
+                    <div class="mb-3">
+                        <label for="propertyId" class="form-label">Property ID</label>
+                        <input type="text" class="form-control" id="propertyId" name="propertyId" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newName" class="form-label">New Property Name</label>
+                        <input type="text" class="form-control" id="newName" name="newName">
+                    </div>
+                    <div class="mb-3">
+                        <label for="newLocation" class="form-label">New Location</label>
+                        <input type="text" class="form-control" id="newLocation" name="newLocation">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Property</button>
+                </form>
+            </div>
+
+            <!-- Add Property Section -->
+            <div class="mb-4">
+                <h4>Add New Property</h4>
+                <form method="POST" action="/add-property">
+                    <div class="mb-3">
+                        <label for="propertyName" class="form-label">Property Name</label>
+                        <input type="text" class="form-control" id="propertyName" name="propertyName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="location" name="location" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Add Property</button>
+                </form>
+            </div>
+
+            <!-- Remove Property Section -->
+            <div class="mb-4">
+                <h4>Remove Property</h4>
+                <form method="POST" action="/remove-property">
+                    <div class="mb-3">
+                        <label for="removePropertyId" class="form-label">Property ID</label>
+                        <input type="text" class="form-control" id="removePropertyId" name="removePropertyId" required>
+                    </div>
+                    <button type="submit" class="btn btn-danger">Remove Property</button>
+                </form>
+            </div>
+
+            <!-- Add Room Section -->
+            <div class="mb-4">
+                <h4>Add Room to Property</h4>
+                <form method="POST" action="/add-room">
+                    <div class="mb-3">
+                        <label for="roomPropertyId" class="form-label">Property ID</label>
+                        <input type="text" class="form-control" id="roomPropertyId" name="roomPropertyId" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="roomNumber" class="form-label">Room Number</label>
+                        <input type="text" class="form-control" id="roomNumber" name="roomNumber" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="roomType" class="form-label">Room Type</label>
+                        <input type="text" class="form-control" id="roomType" name="roomType">
+                    </div>
+                    <div class="mb-3">
+                        <label for="roomRent" class="form-label">Monthly Rent ($)</label>
+                        <input type="number" class="form-control" id="roomRent" name="roomRent">
+                    </div>
+                    <button type="submit" class="btn btn-success">Add Room</button>
+                </form>
+            </div>
+
+            <!-- Remove Room Section -->
+            <div class="mb-4">
+                <h4>Remove Room from Property</h4>
+                <form method="POST" action="/remove-room">
+                    <div class="mb-3">
+                        <label for="removeRoomPropertyId" class="form-label">Property ID</label>
+                        <input type="text" class="form-control" id="removeRoomPropertyId" name="removeRoomPropertyId" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="removeRoomNumber" class="form-label">Room Number</label>
+                        <input type="text" class="form-control" id="removeRoomNumber" name="removeRoomNumber" required>
+                    </div>
+                    <button type="submit" class="btn btn-danger">Remove Room</button>
+                </form>
+            </div>
+        </div>
         {% endblock %}
     </main>
 
