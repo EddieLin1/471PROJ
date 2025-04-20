@@ -89,13 +89,15 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Dynamic backend content -->    
-          {% for r in rs %}
-          <tr>
-            <td>{{ r[0] }}</td>  
-            <td>{{ r[2] }}</td> 
-          </tr>
-          {% endfor %} 
+          <!-- Dynamic backend content -->
+          {% if rs %} 
+            {% for r in rs %}
+            <tr>
+              <td>{{ r[0] }}</td>  
+              <td>{{ r[2] }}</td> 
+            </tr>
+            {% endfor %} 
+          {% endif %}
         </tbody>
       </table>
     </div>
