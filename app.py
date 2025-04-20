@@ -32,7 +32,6 @@ def login():
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM PERSON WHERE UserName = ? AND Password = ?", (username, password))
             result = cursor.fetchone()
-            ps = conn.execute("SELECT * FROM property").fetchall()
             
             #setting permission getting SSN and permission access in session variable
             if result:
@@ -51,7 +50,7 @@ def login():
 
                 session["access"] = access
                 
-                return render_template("PropertyView.html", ps=ps)
+                return property()
         
         # Return the login page with an error message
         return render_template("Login.html", error="Invalid username or password.")
@@ -81,10 +80,13 @@ def leaseAgreement():
 
 @app.route("/property-view", methods=["GET"])
 def property():
+    if session.get('access') == 'client':
+        with sqlite3.connect("Homeapp.db") as conn:
+            ps = conn.execute("SELECT * FROM property").fetchall()
+    else:
+        with sqlite3.connect("Homeapp.db") as conn:
+            ps = conn.execute("SELECT * FROM property WHERE OwnerSSN = ?", (session.get('ssn'),)).fetchall()
 
-    with sqlite3.connect("Homeapp.db") as conn:
-        ps = conn.execute("SELECT * FROM property").fetchall()
-    
     return render_template("PropertyView.html", ps=ps)
 
 @app.route("/property-view/<int:property_id>", methods=["GET"])
@@ -97,6 +99,7 @@ def property_specific(property_id):
         "floor_number": None,
         "num_floors": None
     }
+    rs = None
 
     if property_id != 0:
         with sqlite3.connect("Homeapp.db") as conn:
@@ -115,8 +118,10 @@ def property_specific(property_id):
                 elif h:
                     form["property_type"] = "house"
                     form["num_floors"] = h[0]
+            rs = conn.execute("SELECT * FROM ROOM WHERE PropertyID = ?", (property_id,)).fetchall()
+    
 
-    return render_template("PropertyEdit.html", form=form)
+    return render_template("PropertyEdit.html", form=form, rs=rs)
 
 
 @app.route("/add-property", methods=["POST"])
@@ -174,10 +179,17 @@ def add_property():
 
         conn.commit()
 
+    return property()
+
+@app.route("/property-delete/<int:property_id>", methods=["GET"])
+def delete_property(property_id):
     with sqlite3.connect("Homeapp.db") as conn:
-        ps = conn.execute("SELECT * FROM property").fetchall()
+        conn.execute("PRAGMA foreign_keys = ON")
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM PROPERTY WHERE PropertyID = ?", (property_id,))
+        conn.commit()
     
-    return render_template("PropertyView.html", ps=ps)
+    return property()
 
 @app.route("/test-house", methods=["GET"])
 def thouse():

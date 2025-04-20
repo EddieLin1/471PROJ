@@ -37,45 +37,69 @@
     {% endif %}
   </h2>
   <a href="/property-view" class="btn btn-secondary">Back</a>
-  <form method="POST" action="/add-property">
-    <input type="hidden" name="property_id" value="{{ form.property_id }}">
+  <div class="row">
+    <div class="col-md-7">
+      <form method="POST" action="/add-property">
+        <input type="hidden" name="property_id" value="{{ form.property_id }}">
 
-    <div class="mb-3">
-        <label for="propertyType" class="form-label">Property Type</label>
-        <select class="form-select" id="propertyType" name="property_type" required onchange="togglePropertyFields()">
-          <option value="apartment" {% if form.property_type == 'apartment' %}selected{% endif %}>Apartment</option>
-          <option value="house" {% if form.property_type == 'house' %}selected{% endif %}>House</option>
-        </select>
-      </div>
-      
-      <!-- Apartment-specific field -->
-      <div class="mb-3" id="floorNumberField" style="display: none;">
-        <label for="floor_number" class="form-label">Floor Number</label>
-        <input type="number" class="form-control" id="floor_number" name="floor_number"
-               value="{{ form.floor_number or '' }}">
-      </div>
-      
-      <!-- House-specific field -->
-      <div class="mb-3" id="numFloorsField" style="display: none;">
-        <label for="num_floors" class="form-label">Number of Floors</label>
-        <input type="number" class="form-control" id="num_floors" name="num_floors"
-               value="{{ form.num_floors or '' }}">
-      </div>
+        <div class="mb-3">
+            <label for="propertyType" class="form-label">Property Type</label>
+            <select class="form-select" id="propertyType" name="property_type" required onchange="togglePropertyFields()">
+              <option value="apartment" {% if form.property_type == 'apartment' %}selected{% endif %}>Apartment</option>
+              <option value="house" {% if form.property_type == 'house' %}selected{% endif %}>House</option>
+            </select>
+          </div>
+          
+          <!-- Apartment-specific field -->
+          <div class="mb-3" id="floorNumberField" style="display: none;">
+            <label for="floor_number" class="form-label">Floor Number</label>
+            <input type="number" class="form-control" id="floor_number" name="floor_number"
+                  value="{{ form.floor_number or '' }}">
+          </div>
+          
+          <!-- House-specific field -->
+          <div class="mb-3" id="numFloorsField" style="display: none;">
+            <label for="num_floors" class="form-label">Number of Floors</label>
+            <input type="number" class="form-control" id="num_floors" name="num_floors"
+                  value="{{ form.num_floors or '' }}">
+          </div>
 
-    <div class="mb-3">
-      <label for="address" class="form-label">Address</label>
-      <input type="text" class="form-control" name="address" value="{{ form.address }}" required>
+        <div class="mb-3">
+          <label for="address" class="form-label">Address</label>
+          <input type="text" class="form-control" name="address" value="{{ form.address }}" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea class="form-control" name="description" rows="3" required>{{ form.description }}</textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+          {% if form.property_id != 0 %}Update Property{% else %}Add Property{% endif %}
+        </button>
+      </form>
     </div>
-
-    <div class="mb-3">
-      <label for="description" class="form-label">Description</label>
-      <textarea class="form-control" name="description" rows="3" required>{{ form.description }}</textarea>
+    <div class="col-md-5 border-start ps-4">
+      <h4>Rooms</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Room Number</th>
+            <th>Condition</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Dynamic backend content -->    
+          {% for r in rs %}
+          <tr>
+            <td>{{ r[0] }}</td>  
+            <td>{{ r[2] }}</td> 
+          </tr>
+          {% endfor %} 
+        </tbody>
+      </table>
     </div>
-
-    <button type="submit" class="btn btn-primary">
-      {% if form.property_id != 0 %}Update Property{% else %}Add Property{% endif %}
-    </button>
-  </form>
+  </div>
 </div>
 {% endblock %}
 
