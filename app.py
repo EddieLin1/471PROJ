@@ -74,9 +74,85 @@ def contractor():
 def leaseAgreement():
 
     with sqlite3.connect("Homeapp.db") as conn:
-        las = conn.execute("SELECT * FROM leaseagreement").fetchall()
+        las = conn.execute("SELECT * FROM leaseagreement WHERE OwnerSSN = ? UNION SELECT * FROM leaseagreement WHERE ClientSSN = ?", (session.get('ssn'), session.get('ssn'),)).fetchall()
     
-    return render_template("LeaseAgreementView.html", las=las)
+    if session.get('access') == "homeowner":
+        addremoveView = True
+    else:
+        addremoveView = False
+
+    return render_template("LeaseAgreementView.html", las=las, permission=addremoveView)
+
+@app.route("/lease-agreement-view/<int:leaseID>", methods=["GET"])
+def leaseagreement_specific(leaseID):
+    form = {
+        "leaseID": 0,
+        "startDate": 0,
+        "endDate": 0,
+        "clientSSN": 0,
+    }
+
+    if leaseID != 0:
+        with sqlite3.connect("Homeapp.db") as conn:
+            l = conn.execute("SELECT * FROM leaseagreement WHERE LeaseID = ?", (leaseID, )).fetchone()
+            if l:
+                form["leaseID"] = l[0]
+                form["startDate"] = l[1]
+                form["endDate"] = l[2]
+                form["clientSSN"] = l[4]
+    
+    return render_template("LeaseAgreementEdit.html", form=form)
+            
+
+@app.route("/add-leaseagreement", methods=["POST"])
+def add_leaseagreement():
+    lease_id = int(request.form["leaseID"])
+    start_date = request.form["start_date"]
+    end_date = request.form["end_date"]
+    clientSSN = request.form["clientSSN"]
+
+    with sqlite3.connect("Homeapp.db") as conn:
+        cursor = conn.cursor()
+
+        if lease_id == 0:
+            # --- ADD NEW ---
+            base_id = 6000
+            # Find the first unused ID in the range 4001–4999 or 5001–5999
+            existing_ids = cursor.execute("""
+                SELECT LeaseID FROM LEASEAGREEMENT WHERE LeaseID BETWEEN ? AND ? ORDER BY LeaseID
+            """, (base_id + 1, base_id + 999)).fetchall()
+
+            existing_ids_set = {row[0] for row in existing_ids}
+            for candidate_id in range(base_id + 1, base_id + 1000):
+                if candidate_id not in existing_ids_set:
+                    new_id = candidate_id
+                    break
+
+            cursor.execute("""
+                INSERT INTO LEASEAGREEMENT (LeaseID, StartDate, EndDate, OwnerSSN, ClientSSN)
+                VALUES (?, ?, ?, ?)
+            """, (new_id, start_date, end_date, session.get('ssn'), clientSSN))
+
+        else:
+            # --- UPDATE EXISTING ---
+            cursor.execute("""
+                UPDATE LEASEAGREEMENT SET StartDate = ?, EndDate = ?, ClientSSN = ? WHERE PropertyID = ?
+            """, (start_date, end_date, clientSSN, lease_id))
+
+        conn.commit()
+
+    return leaseAgreement()
+
+@app.route("/leaseagreement-delete/<int:leaseID>", methods=["GET"])
+def delete_leaseagreement(leaseID):
+    with sqlite3.connect("Homeapp.db") as conn:
+        conn.execute("PRAGMA foreign_keys = ON")
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM LEASEAGREEMENT WHERE LeaseID = ?", (leaseID,))
+        conn.commit()
+    
+    return leaseAgreement()
+
 
 @app.route("/property-view", methods=["GET"])
 def property():
@@ -88,6 +164,7 @@ def property():
             ps = conn.execute("SELECT * FROM property WHERE OwnerSSN = ?", (session.get('ssn'),)).fetchall()
 
     return render_template("PropertyView.html", ps=ps)
+
 
 @app.route("/property-view/<int:property_id>", methods=["GET"])
 def property_specific(property_id):

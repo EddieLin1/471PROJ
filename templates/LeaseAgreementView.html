@@ -5,6 +5,8 @@
 {% block content %}
 <div class="container">
   <h2>Lease Agreement List</h2>
+
+  <a href="{{ url_for('leaseagreement_specific', leaseID=0) }}" class="btn btn-secondary">Add Lease Agreement</a>
   <table>
     <thead>
       <tr>
@@ -13,6 +15,10 @@
         <th>End Date</th>
         <th>OwnerSSN</th>
         <th>ClientSSN</th>
+        {% if permission %}
+        <th>Edit</th>
+        <th>Delete</th>
+        {% endif %}
       </tr>
     </thead>
     <tbody>
@@ -23,10 +29,25 @@
         <td>{{ la[1] }}</td> 
         <td>{{ la[2] }}</td> 
         <td>{{ la[3] }}</td> 
-        <td>{{ la[4] }}</td> 
+        <td>{{ la[4] }}</td>
+        {% if permission %} 
+        <td>
+          <a href="{{ url_for('leaseagreement_specific', leaseID=la[0]) }}">Edit</a>
+        </td>
+        <td>
+          <a href="{{ url_for('delete_leaseagreement', leaseID=la[0]) }}"
+            onclick="return confirm('Are you sure you want to delete this lease agreement?');"
+            class="text-danger">Delete</a>
+        </td>
+        {% endif %}
       </tr>
       {% endfor %} 
     </tbody>
   </table>
+</div>
+<div class="d-flex gap-3">
+  <p>Your SSN: {{ session['ssn'] }}</p>
+  <p>Your test: {{ session['access'] }}</p>
+  <p>Your test: {{ session['name'] }}</p>
 </div>
 {% endblock %}
