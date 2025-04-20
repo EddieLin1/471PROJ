@@ -98,5 +98,53 @@ def room():
 def edit():
     return render_template("edit.html")
 
+@app.route("/edit_property", methods=["POST"])
+def edit_property():
+    property_id = request.form["propertyId"]
+    address = request.form.get("updatedAddress")
+    description = request.form.get("updatedDescription")
+    with sqlite3.connect("Homeapp.db") as conn:
+        if address:
+            conn.execute("UPDATE property SET Address = ? WHERE PropertyID = ?", (address, property_id))
+        if description:
+            conn.execute("UPDATE property SET Description = ? WHERE PropertyID = ?", (description, property_id))
+    return render_template("edit.html")
+
+@app.route("/add_property", methods=["POST"])
+def add_property():
+    property_id = request.form["newPropertyID"]
+    address = request.form["newAddress"]
+    description = request.form["newDescription"]
+    with sqlite3.connect("Homeapp.db") as conn:
+        conn.execute("INSERT INTO property (PropertyID, Address, Description) VALUES (?, ?, ?)",
+                     (property_id, address, description))
+    return render_template("edit.html")
+
+@app.route("/remove_property", methods=["POST"])
+def remove_property():
+    property_id = request.form["removePropertyId"]
+    with sqlite3.connect("Homeapp.db") as conn:
+        conn.execute("DELETE FROM property WHERE PropertyID = ?", (property_id,))
+    return render_template("edit.html")
+
+@app.route("/add_room", methods=["POST"])
+def add_room():
+    property_id = request.form["roomPropertyId"]
+    room_number = request.form["addroomNumber"]
+    condition = request.form.get("addroomCondition")
+    lease_id = request.form.get("addLeaseID")
+    with sqlite3.connect("Homeapp.db") as conn:
+        conn.execute("INSERT INTO room (PropertyID, RoomNumber, RoomCondition, LeaseID) VALUES (?, ?, ?, ?)",
+                     (property_id, room_number, condition, lease_id))
+    return render_template("edit.html")
+
+@app.route("/remove_room", methods=["POST"])
+def remove_room():
+    property_id = request.form["removeRoomPropertyId"]
+    room_number = request.form["removeRoomNumber"]
+    with sqlite3.connect("Homeapp.db") as conn:
+        conn.execute("DELETE FROM room WHERE PropertyID = ? AND RoomNumber = ?", (property_id, room_number))
+    return render_template("edit.html")
+
 if __name__ == '__main__':
     app.run(debug=True)

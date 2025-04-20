@@ -8,7 +8,7 @@
     <!-- Property Editing Section -->
     <div class="mb-4">
         <h4>Edit Existing Property</h4>
-        <form method="POST" action="/edit-property">
+        <form method="POST" action="{{ url_for('edit_property') }}">
             <div class="mb-3">
                 <label for="propertyId" class="form-label">Property ID</label>
                 <input type="text" class="form-control" id="propertyId" name="propertyId" required>
@@ -29,7 +29,7 @@
     <!-- Add Property Section -->
     <div class="mb-4">
         <h4>Add New Property</h4>
-        <form method="POST" action="/add-property">
+        <form method="POST" action="{{ url_for('add_property') }}">
             <div class="mb-3">
                 <label for="newPropertyID" class="form-label">Property ID</label>
                 <input type="text" class="form-control" id="newPropertyID" name="newPropertyID" required>
@@ -49,7 +49,7 @@
     <!-- Remove Property Section -->
     <div class="mb-4">
         <h4>Remove Property</h4>
-        <form method="POST" action="/remove-property">
+        <form method="POST" action="{{ url_for('remove_property') }}">
             <div class="mb-3">
                 <label for="removePropertyId" class="form-label">Property ID</label>
                 <input type="text" class="form-control" id="removePropertyId" name="removePropertyId" required>
@@ -61,7 +61,7 @@
     <!-- Add Room Section -->
     <div class="mb-4">
         <h4>Add Room to Property</h4>
-        <form method="POST" action="/add-room">
+        <form method="POST" action="{{ url_for('add_room') }}">
             <div class="mb-3">
                 <label for="roomPropertyId" class="form-label">Property ID</label>
                 <input type="text" class="form-control" id="roomPropertyId" name="roomPropertyId" required>
@@ -85,7 +85,7 @@
     <!-- Remove Room Section -->
     <div class="mb-4">
         <h4>Remove Room from Property</h4>
-        <form method="POST" action="/remove-room">
+        <form method="POST" action="{{ url_for('remove_room') }}">
             <div class="mb-3">
                 <label for="removeRoomPropertyId" class="form-label">Property ID</label>
                 <input type="text" class="form-control" id="removeRoomPropertyId" name="removeRoomPropertyId" required>
