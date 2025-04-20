@@ -72,10 +72,11 @@ def contractor():
 
 @app.route("/lease-agreement-view", methods=["GET"])
 def leaseAgreement():
-
+    #get lease agreements associated with a user
     with sqlite3.connect("Homeapp.db") as conn:
         las = conn.execute("SELECT * FROM leaseagreement WHERE OwnerSSN = ? UNION SELECT * FROM leaseagreement WHERE ClientSSN = ?", (session.get('ssn'), session.get('ssn'),)).fetchall()
     
+    #check permissions
     if session.get('access') == "homeowner":
         addremoveView = True
     else:
@@ -85,6 +86,7 @@ def leaseAgreement():
 
 @app.route("/lease-agreement-view/<int:leaseID>", methods=["GET"])
 def leaseagreement_specific(leaseID):
+    #initialize form values
     form = {
         "leaseID": 0,
         "startDate": 0,
@@ -92,6 +94,7 @@ def leaseagreement_specific(leaseID):
         "clientSSN": 0,
     }
 
+    #if not asking for a new lease agreement, retrieve attributes of a specific lease agreement based on id
     if leaseID != 0:
         with sqlite3.connect("Homeapp.db") as conn:
             l = conn.execute("SELECT * FROM leaseagreement WHERE LeaseID = ?", (leaseID, )).fetchone()
@@ -101,23 +104,43 @@ def leaseagreement_specific(leaseID):
                 form["endDate"] = l[2]
                 form["clientSSN"] = l[4]
     
+    #return page
     return render_template("LeaseAgreementEdit.html", form=form)
             
 
 @app.route("/add-leaseagreement", methods=["POST"])
 def add_leaseagreement():
+    #get new/updated values from html form
     lease_id = int(request.form["leaseID"])
     start_date = request.form["start_date"]
     end_date = request.form["end_date"]
     clientSSN = request.form["clientSSN"]
 
+    form = {
+        "leaseID": lease_id,
+        "startDate": start_date,
+        "endDate": end_date,
+        "clientSSN": clientSSN
+    }
+
     with sqlite3.connect("Homeapp.db") as conn:
         cursor = conn.cursor()
+
+        # get existing users
+        existuser = conn.execute("SELECT * FROM CLIENT").fetchall()
+        existuser = list(zip(*existuser))[0]
+
+        #check to see that the inputted client is valid
+        if int(clientSSN) not in existuser:
+            return render_template("LeaseAgreementEdit.html", form=form, error="invalid client SSN")
+        #check to see that the inputted date range is valid
+        elif start_date > end_date:
+            return render_template("LeaseAgreementEdit.html", form=form, error="Invalid date range: the end date cannot be earlier than the start date")
 
         if lease_id == 0:
             # --- ADD NEW ---
             base_id = 6000
-            # Find the first unused ID in the range 4001–4999 or 5001–5999
+            # Find the first unused ID in the range 6000-69999
             existing_ids = cursor.execute("""
                 SELECT LeaseID FROM LEASEAGREEMENT WHERE LeaseID BETWEEN ? AND ? ORDER BY LeaseID
             """, (base_id + 1, base_id + 999)).fetchall()
@@ -128,6 +151,7 @@ def add_leaseagreement():
                     new_id = candidate_id
                     break
 
+            #insert new lease agreement
             cursor.execute("""
                 INSERT INTO LEASEAGREEMENT (LeaseID, StartDate, EndDate, OwnerSSN, ClientSSN)
                 VALUES (?, ?, ?, ?, ?)
