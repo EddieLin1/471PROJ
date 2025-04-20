@@ -14,13 +14,14 @@
                 <input type="text" class="form-control" id="propertyId" name="propertyId" required>
             </div>
             <div class="mb-3">
-                <label for="newName" class="form-label">New Property Name</label>
-                <input type="text" class="form-control" id="newName" name="newName">
+                <label for="updatedAddress" class="form-label">Updated Address</label>
+                <input type="text" class="form-control" id="updatedAddress" name="updatedAddress">
             </div>
             <div class="mb-3">
-                <label for="newLocation" class="form-label">New Location</label>
-                <input type="text" class="form-control" id="newLocation" name="newLocation">
+                <label for="updatedDescription" class="form-label">Updated Description</label>
+                <input type="text" class="form-control" id="updatedAddress" name="updatedAddress">
             </div>
+            
             <button type="submit" class="btn btn-primary">Update Property</button>
         </form>
     </div>
@@ -30,12 +31,16 @@
         <h4>Add New Property</h4>
         <form method="POST" action="/add-property">
             <div class="mb-3">
-                <label for="propertyName" class="form-label">Property Name</label>
-                <input type="text" class="form-control" id="propertyName" name="propertyName" required>
+                <label for="newPropertyID" class="form-label">Property ID</label>
+                <input type="text" class="form-control" id="newPropertyID" name="newPropertyID" required>
             </div>
             <div class="mb-3">
-                <label for="location" class="form-label">Location</label>
-                <input type="text" class="form-control" id="location" name="location" required>
+                <label for="newAddress" class="form-label">New Address</label>
+                <input type="text" class="form-control" id="newAddress" name="newAddress" required>
+            </div>
+            <div class="mb-3">
+                <label for="newDescription" class="form-label">New Description</label>
+                <input type="text" class="form-control" id="newDescription" name="newDescription" required>
             </div>
             <button type="submit" class="btn btn-success">Add Property</button>
         </form>
