@@ -139,10 +139,16 @@ def add_property():
         if property_id == 0:
             # --- ADD NEW ---
             base_id = 4000 if property_type == "apartment" else 5000
-            max_id = cursor.execute("""
-                SELECT MAX(PropertyID) FROM PROPERTY WHERE PropertyID BETWEEN ? AND ?
-            """, (base_id, base_id + 999)).fetchone()[0]
-            new_id = (max_id + 1) if max_id else base_id + 1
+            # Find the first unused ID in the range 4001–4999 or 5001–5999
+            existing_ids = cursor.execute("""
+                SELECT PropertyID FROM PROPERTY WHERE PropertyID BETWEEN ? AND ? ORDER BY PropertyID
+            """, (base_id + 1, base_id + 999)).fetchall()
+
+            existing_ids_set = {row[0] for row in existing_ids}
+            for candidate_id in range(base_id + 1, base_id + 1000):
+                if candidate_id not in existing_ids_set:
+                    new_id = candidate_id
+                    break
 
             cursor.execute("""
                 INSERT INTO PROPERTY (PropertyID, Address, Description, OwnerSSN)
