@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Property View Specific{% endblock %}
+
+{% block content %}
+<script>
+    function togglePropertyFields() {
+      const type = document.getElementById("propertyType").value;
+      const floorField = document.getElementById("floorNumberField");
+      const numFloorsField = document.getElementById("numFloorsField");
+  
+      if (type === "apartment") {
+        floorField.style.display = "block";
+        numFloorsField.style.display = "none";
+      } else if (type === "house") {
+        floorField.style.display = "none";
+        numFloorsField.style.display = "block";
+      } else {
+        floorField.style.display = "none";
+        numFloorsField.style.display = "none";
+      }
+    }
+  
+    // Initialize fields correctly on page load
+    document.addEventListener("DOMContentLoaded", function () {
+      togglePropertyFields();
+    });
+  </script>
+
+
+<div class="container mt-5">
+  <h2 class="mb-4">
+    {% if form.property_id != 0 %}
+      Edit Property #{{ form.property_id }}
+    {% else %}
+      Add New Property
+    {% endif %}
+  </h2>
+  <a href="/property-view" class="btn btn-secondary">Back</a>
+  <div class="row">
+    <div class="col-md-7">
+      <form method="POST" action="/add-property">
+        <input type="hidden" name="property_id" value="{{ form.property_id }}">
+
+        <div class="mb-3">
+            <label for="propertyType" class="form-label">Property Type</label>
+            <select class="form-select" id="propertyType" name="property_type" required onchange="togglePropertyFields()">
+              <option value="apartment" {% if form.property_type == 'apartment' %}selected{% endif %}>Apartment</option>
+              <option value="house" {% if form.property_type == 'house' %}selected{% endif %}>House</option>
+            </select>
+          </div>
+          
+          <!-- Apartment-specific field -->
+          <div class="mb-3" id="floorNumberField" style="display: none;">
+            <label for="floor_number" class="form-label">Floor Number</label>
+            <input type="number" class="form-control" id="floor_number" name="floor_number"
+                  value="{{ form.floor_number or '' }}">
+          </div>
+          
+          <!-- House-specific field -->
+          <div class="mb-3" id="numFloorsField" style="display: none;">
+            <label for="num_floors" class="form-label">Number of Floors</label>
+            <input type="number" class="form-control" id="num_floors" name="num_floors"
+                  value="{{ form.num_floors or '' }}">
+          </div>
+
+        <div class="mb-3">
+          <label for="address" class="form-label">Address</label>
+          <input type="text" class="form-control" name="address" value="{{ form.address }}" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea class="form-control" name="description" rows="3" required>{{ form.description }}</textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+          {% if form.property_id != 0 %}Update Property{% else %}Add Property{% endif %}
+        </button>
+      </form>
+    </div>
+    <div class="col-md-5 border-start ps-4">
+      <h4>Rooms</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Room Number</th>
+            <th>Condition</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Dynamic backend content -->
+          {% if rs %} 
+            {% for r in rs %}
+            <tr>
+              <td>{{ r[1] }}</td>  
+              <td>{{ r[2] }}</td> 
+            </tr>
+            {% endfor %} 
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

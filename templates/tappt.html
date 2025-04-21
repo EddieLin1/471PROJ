@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Room View{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2>appt list</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>PropertyID</th>
+        <th>Floor Num</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Dynamic backend content -->    
+      {% for ta in tas %}
+      <tr>
+        <td>{{ ta[0] }}</td>  
+        <td>{{ ta[1] }}</td> 
+      </tr>
+      {% endfor %} 
+    </tbody>
+  </table>
+</div>
+{% endblock %}
