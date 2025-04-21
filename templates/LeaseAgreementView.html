@@ -6,7 +6,9 @@
 <div class="container">
   <h2>My Lease Agreement List</h2>
 
+  {% if session.get('access') == 'homeowner' %}
   <a href="{{ url_for('leaseagreement_specific', leaseID=0) }}" class="btn btn-secondary">Add New Lease Agreement</a>
+  {% endif %}
   <table>
     <thead>
       <tr>

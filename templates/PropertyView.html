@@ -5,7 +5,11 @@
 {% block content %}
 <div class="container mt-5">
   <h2>Properties List</h2>
+
+  {% if session.get('access') == 'homeowner' %}
   <a href="{{ url_for('property_specific', property_id=0) }}" class="btn btn-secondary">Add Property</a>
+  {% endif %}
+  
   <table>
     <thead>
       <tr>
