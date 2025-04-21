@@ -37,9 +37,19 @@
     {% endif %}
   </h2>
   <a href="/property-view" class="btn btn-secondary">Back</a>
+
+  {% set pid = form.property_id|string %}
+  {% if pid.startswith("4") %}
+    {% set image_name = "appt" ~ pid[-1] ~ ".jpg" %}
+  {% elif pid.startswith("5") %}
+    {% set image_name = "house" ~ pid[-1] ~ ".jpg" %}
+  {% endif %}
   {% if session.get('access') == 'homeowner' %}
   <div class="row">
     <div class="col-md-7">
+      <img src="{{ url_for('static', filename='images/' ~ image_name) }}"
+      alt="Property Image"
+      style="width: 500px; border-radius: 8px; margin: 20px">
       <form method="POST" action="/add-property">
         <input type="hidden" name="property_id" value="{{ form.property_id }}">
 
@@ -75,7 +85,7 @@
           <textarea class="form-control" name="description" rows="3" required>{{ form.description }}</textarea>
         </div>
 
-        <button type="submit" class="btn btn-primary">
+        <button type="submit" class="btn btn-primary" style="margin-bottom: 20px;">
           {% if form.property_id != 0 %}Update Property{% else %}Add Property{% endif %}
         </button>
       </form>
@@ -83,6 +93,9 @@
     {% else %}
     <div class="row">
       <div class="col-md-7">
+        <img src="{{ url_for('static', filename='images/' ~ image_name) }}"
+        alt="Property Image"
+        style="width: 500px; border-radius: 8px; margin: 20px">
         <div class="mb-3">
             <label for="propertyType" class="form-label"><b>Property Type</b></label>
             <p>{{ form.property_type }}</p>   
@@ -107,7 +120,7 @@
 
         <div class="mb-3">
           <label for="description" class="form-label"><b>Description</b></label>
-          <p>{{ form.description }}</p>
+          <p style="margin-bottom: 20px;">{{ form.description }}</p>
         </div>
       </div>
 
