@@ -15,13 +15,14 @@
       </tr>
     </thead>
     <tbody>
-      <!-- Dynamic content -->
-      <tr>
-        <td>SR001</td>
-        <td>101</td>
-        <td>Leaking Faucet</td>
-        <td>Pending</td>
-      </tr>
+      {% for service in services %}
+        <tr>
+          <td>{{ service[0] }}</td>
+          <td>{{ service[1] }}</td>
+          <td>{{ service[2] }}</td>
+          <td><a href="#" style="color:blue;">View Details</a></td>
+        </tr>
+      {% endfor %}
     </tbody>
   </table>
 </div>
