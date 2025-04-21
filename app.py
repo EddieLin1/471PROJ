@@ -75,7 +75,8 @@ def contractor():
 def leaseAgreement():
     #get lease agreements associated with a user
     with sqlite3.connect("Homeapp.db") as conn:
-        las = conn.execute("SELECT * FROM leaseagreement INNER JOIN person ON leaseagreement.ClientSSN = person.SSN WHERE OwnerSSN = ? UNION SELECT * FROM leaseagreement INNER JOIN person ON leaseagreement.ClientSSN = person.SSN WHERE ClientSSN = ?", (session.get('ssn'), session.get('ssn'),)).fetchall()
+        las = conn.execute("SELECT l.LeaseID, l.StartDate, l.EndDate, l.PropertyID, l.RoomID, l.OwnerSSN, p2.FirstName, p2.LastName, l.ClientSSN, p1.FirstName, p1.LastName FROM leaseagreement AS l INNER JOIN person AS p1 ON l.ClientSSN = p1.SSN INNER JOIN person as p2 ON l.OwnerSSN = p2.SSN WHERE OwnerSSN = ? UNION SELECT l.LeaseID, l.StartDate, l.EndDate, l.PropertyID, l.RoomID, l.OwnerSSN, p2.FirstName, p2.LastName, l.ClientSSN, p1.FirstName, p1.LastName FROM leaseagreement AS l INNER JOIN person AS p1 ON l.ClientSSN = p1.SSN INNER JOIN person as p2 ON l.OwnerSSN = p2.SSN WHERE ClientSSN = ?", (session.get('ssn'), session.get('ssn'),)).fetchall()
+        print(las)
     
     #check permissions
     if session.get('access') == "homeowner":

@@ -17,8 +17,13 @@
         <th>End Date</th>
         <th>Property ID</th>
         <th>Room ID</th>
+        {% if session.get('access') == 'client' %}
+        <th>Owner SSN</th>
+        <th>Owner Name</th>
+        {% elif session.get('access') == 'homeowner' %}
         <th>Client SSN</th>
         <th>Client Name</th>
+        {% endif %}
         {% if permission %}
         <th>Edit</th>
         <th>Delete</th>
@@ -29,13 +34,18 @@
       <!-- Dynamic backend content -->    
       {% for la in las %}
       <tr>
-        <td>{{ la[0] }}</td>  
-        <td>{{ la[1] }}</td> 
-        <td>{{ la[2] }}</td> 
-        <td>{{ la[3] }}</td> 
-        <td>{{ la[4] }}</td>
-        <td>{{ la[6] }}</td>
-        <td>{{ la[8]+" "+la[9] }}</td>
+        <td>{{ la[0] }}</td>  <!--LeaseID-->
+        <td>{{ la[1] }}</td>  <!--start date-->
+        <td>{{ la[2] }}</td>  <!--end date-->
+        <td>{{ la[3] }}</td>  <!--propertyID-->
+        <td>{{ la[4] }}</td>  <!--room ID-->
+        {% if session.get('access') == 'client' %}
+        <td>{{ la[5] }}</td>  <!--Owner SSN-->
+        <td>{{ la[6]+" "+la[7] }}</td> <!--Owner Name-->
+        {% elif session.get('access') == 'homeowner' %}
+        <td>{{ la[8] }}</td>  <!--Client SSN-->
+        <td>{{ la[9]+" "+la[10] }}</td>  <!--client name-->
+        {% endif %}
         {% if permission %} 
         <td>
           <a href="{{ url_for('leaseagreement_specific', leaseID=la[0]) }}">Edit</a>
