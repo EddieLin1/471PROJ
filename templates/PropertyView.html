@@ -27,7 +27,6 @@
       <!-- Dynamic backend content -->    
       {% for p in ps %}
         {% set pid = p[0]|string %}
-        {% set pid = p[0]|string %}
         {% if pid.startswith("4") %}
           {% set image_name = "appt" ~ pid[-1] ~ ".jpg" %}
         {% elif pid.startswith("5") %}
