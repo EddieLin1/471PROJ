@@ -144,7 +144,7 @@
             {% if session.get('access') == 'homeowner' %}
             <th>Remove</th>
             {% endif %}
-            {% if session.get('access') == 'client' %}
+            {% if session.get('access') == 'client' and not personal %}
             <th>Rent Request</th>
             {% endif %}
           </tr>
@@ -168,9 +168,9 @@
               </td>
               {% endif %}
 
-              {% if session.get('access') == 'client' %}
+              {% if session.get('access') == 'client' and not personal and not r[3] %}
               <td>
-                <a href="">Inquire</a> 
+                <a href="{{ url_for('add_request', property_id=r[0], room_id=r[1]) }}">Inquire</a> 
               </td>
               {% endif %}
             </tr>

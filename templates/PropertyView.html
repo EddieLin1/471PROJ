@@ -46,7 +46,11 @@
         <td>{{ p[2] }}</td> 
         <td>{{ p[3] }}</td> 
         <td>
-          <a href="{{ url_for('property_specific', property_id=p[0]) }}">View Details</a>
+          {% if personal %}
+            <a href="{{ url_for('property_specific_personal', property_id=p[0]) }}">View Details</a>
+          {% else %}
+            <a href="{{ url_for('property_specific', property_id=p[0]) }}">View Details</a>
+          {% endif %} 
         </td>
         {% if session.get('access') == 'homeowner' %}
         <td>

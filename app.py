@@ -76,7 +76,6 @@ def leaseAgreement():
     #get lease agreements associated with a user
     with sqlite3.connect("Homeapp.db") as conn:
         las = conn.execute("SELECT l.LeaseID, l.StartDate, l.EndDate, l.PropertyID, l.RoomID, l.OwnerSSN, p2.FirstName, p2.LastName, l.ClientSSN, p1.FirstName, p1.LastName FROM leaseagreement AS l INNER JOIN person AS p1 ON l.ClientSSN = p1.SSN INNER JOIN person as p2 ON l.OwnerSSN = p2.SSN WHERE OwnerSSN = ? UNION SELECT l.LeaseID, l.StartDate, l.EndDate, l.PropertyID, l.RoomID, l.OwnerSSN, p2.FirstName, p2.LastName, l.ClientSSN, p1.FirstName, p1.LastName FROM leaseagreement AS l INNER JOIN person AS p1 ON l.ClientSSN = p1.SSN INNER JOIN person as p2 ON l.OwnerSSN = p2.SSN WHERE ClientSSN = ?", (session.get('ssn'), session.get('ssn'),)).fetchall()
-        print(las)
     
     #check permissions
     if session.get('access') == "homeowner":
@@ -228,6 +227,38 @@ def property_personal():
         ps = conn.execute("SELECT * FROM property p INNER JOIN leaseagreement l ON p.PropertyID = l.PropertyID WHERE l.CLientSSN = ?", (session.get('ssn'),)).fetchall()
     return render_template("PropertyView.html", ps=ps, personal=True)
 
+@app.route("/property-view-personal/<int:property_id>", methods=["GET"])
+def property_specific_personal(property_id):
+    form = {
+        "property_id": 0,
+        "property_type": "",
+        "address": "",
+        "description": "",
+        "floor_number": None,
+        "num_floors": None
+    }
+    rs = None
+
+    with sqlite3.connect("Homeapp.db") as conn:
+            p = conn.execute("SELECT * FROM PROPERTY WHERE PropertyID = ?", (property_id,)).fetchone()
+            if p:
+                form["property_id"] = p[0]
+                form["address"] = p[1]
+                form["description"] = p[2]
+
+                a = conn.execute("SELECT FloorNumber FROM APARTMENT WHERE PropertyID = ?", (property_id,)).fetchone()
+                h = conn.execute("SELECT NumFloors FROM HOUSE WHERE PropertyID = ?", (property_id,)).fetchone()
+
+                if a:
+                    form["property_type"] = "apartment"
+                    form["floor_number"] = a[0]
+                elif h:
+                    form["property_type"] = "house"
+                    form["num_floors"] = h[0]
+            rs = conn.execute("SELECT * FROM ROOM r JOIN LEASEAGREEMENT l ON r.PropertyID = l.PropertyID AND r.RoomID = l.RoomID WHERE r.PropertyID = ? AND l.ClientSSN = ?", (property_id, session.get('ssn'))).fetchall()
+
+    return render_template("PropertyEdit.html", form=form, rs=rs, personal=True)
+
 @app.route("/property-view/<int:property_id>", methods=["GET"])
 def property_specific(property_id):
     form = {
@@ -257,8 +288,17 @@ def property_specific(property_id):
                 elif h:
                     form["property_type"] = "house"
                     form["num_floors"] = h[0]
-            rs = conn.execute("SELECT * FROM ROOM WHERE PropertyID = ?", (property_id,)).fetchall()
-    
+                rs = conn.execute("""
+                            SELECT r.*, 
+                                EXISTS (
+                                    SELECT 1 FROM REQUESTS req 
+                                    WHERE req.PropertyID = r.PropertyID 
+                                        AND req.RoomID = r.RoomID
+                                ) AS HasRequest
+                            FROM ROOM r
+                            WHERE r.PropertyID = ?
+                        """, (property_id,)).fetchall()
+                print(rs)
 
     return render_template("PropertyEdit.html", form=form, rs=rs)
 
@@ -445,7 +485,6 @@ def add_employee(propertyID, roomID):
 
         #get list of employees currently working on a room
         es = conn.execute("SELECT * FROM WORKS_ON INNER JOIN EMPLOYEE ON WORKS_ON.ESSN = EMPLOYEE.SSN WHERE PropertyID = ? AND RoomID = ?", (propertyID, roomID, )).fetchall()
-        print(es)
 
         #check to see that the inputted client is valid
         if int(emp_SSN) not in existemp:
@@ -518,6 +557,37 @@ def delete_workson(property_id, room_id):
         conn.execute("DELETE FROM WORKS_ON WHERE PropertyID = ? AND RoomID = ? AND ESSN = ?", (property_id, room_id, ssn))
         conn.commit()
     return service_view()
+
+@app.route("/my-requests", methods=["GET"])
+def my_request_view():
+    if session.get('access') == 'homeowner':
+        with sqlite3.connect("Homeapp.db") as conn:
+            requests = conn.execute("SELECT r.PropertyID, r.RoomID, r.ClientSSN, per2.FirstName, per2.LastName FROM REQUESTS r INNER JOIN PROPERTY p ON p.PropertyID = r.PropertyID INNER JOIN PERSON per1 ON p.OwnerSSN = per1.SSN INNER JOIN PERSON per2 ON r.ClientSSN = per2.SSN WHERE OwnerSSN = ?", (session.get('ssn'),)).fetchall()
+    else:
+        with sqlite3.connect("Homeapp.db") as conn:
+            requests = conn.execute("SELECT r.PropertyID, r.RoomID, p.OwnerSSN, per1.FirstName, per1.LastName FROM REQUESTS r INNER JOIN PROPERTY p ON p.PropertyID = r.PropertyID INNER JOIN PERSON per1 ON p.OwnerSSN = per1.SSN INNER JOIN PERSON per2 ON r.ClientSSN = per2.SSN WHERE ClientSSN = ?", (session.get('ssn'),)).fetchall()
+
+    print(requests)
+    return render_template("RequestView.html", requests=requests)
+
+@app.route("/my-requests-delete/<int:property_id>/<int:room_id>/<int:client_ssn>", methods=["GET"])
+def my_request_delete(property_id, room_id, client_ssn):
+    with sqlite3.connect("Homeapp.db") as conn:
+        conn.execute("PRAGMA foreign_keys = ON")
+        conn.execute("DELETE FROM REQUESTS WHERE PropertyID = ? AND RoomID = ? AND ClientSSN = ?", (property_id, room_id, client_ssn))
+        conn.commit()
+    return my_request_view()
+
+@app.route("/add-request/<int:property_id>/<int:room_id>", methods=["GET"])
+def add_request(property_id, room_id):
+
+    with sqlite3.connect("Homeapp.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+                    INSERT INTO REQUESTS (PropertyID, RoomID, ClientSSN)
+                    VALUES (?, ?, ?)
+                """, (property_id, room_id, session.get('ssn')))
+    return my_request_view()
 
 if __name__ == '__main__':
     app.run(debug=True)

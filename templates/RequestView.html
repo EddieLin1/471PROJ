@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Requests View{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2>My Requests</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>PropertyID</th>
+        <th>RoomID</th>
+        {% if session.get('access') == 'client' %}
+        <th>Owner SSN</th>
+        <th>Owner Name</th>
+        {% elif session.get('access') == 'homeowner' %}
+        <th>Client SSN</th>
+        <th>Client Name</th>
+        {% endif %}
+        <th>Delete</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Dynamic backend content -->    
+      {% for request in requests %}
+      <tr>
+        <td>{{ request[0] }}</td>  <!--PropertyID-->
+        <td>{{ request[1] }}</td>  <!--RoomID-->
+        <td>{{ request[2] }}</td>  <!--SSN-->
+        <td>{{ request[3]+" "+request[4] }}</td>  <!-- name-->
+        <td>
+            {% if session.get('access') == 'homeowner' %}
+                <a href="{{ url_for('my_request_delete', property_id=request[0], room_id=request[1], client_ssn=request[2]) }}"
+                onclick="return confirm('Are you sure you want to delete this request?');"
+                class="text-danger">Delete</a>
+            {% else %}
+                <a href="{{ url_for('my_request_delete', property_id=request[0], room_id=request[1], client_ssn=session.get('ssn')) }}"
+                    onclick="return confirm('Are you sure you want to delete this request?');"
+                    class="text-danger">Delete</a>
+            {% endif %}
+        </td>
+      </tr>
+      {% endfor %} 
+    </tbody>
+  </table>
+</div>
+<div class="d-flex gap-3">
+  <p>Your SSN: {{ session['ssn'] }}</p>
+  <p>Your test: {{ session['access'] }}</p>
+  <p>Your test: {{ session['name'] }}</p>
+</div>
+{% endblock %}
