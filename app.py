@@ -74,7 +74,7 @@ def contractor():
 def leaseAgreement():
     #get lease agreements associated with a user
     with sqlite3.connect("Homeapp.db") as conn:
-        las = conn.execute("SELECT * FROM leaseagreement WHERE OwnerSSN = ? UNION SELECT * FROM leaseagreement WHERE ClientSSN = ?", (session.get('ssn'), session.get('ssn'),)).fetchall()
+        las = conn.execute("SELECT * FROM leaseagreement INNER JOIN person ON leaseagreement.ClientSSN = person.SSN WHERE OwnerSSN = ? UNION SELECT * FROM leaseagreement INNER JOIN person ON leaseagreement.ClientSSN = person.SSN WHERE ClientSSN = ?", (session.get('ssn'), session.get('ssn'),)).fetchall()
     
     #check permissions
     if session.get('access') == "homeowner":
@@ -91,6 +91,8 @@ def leaseagreement_specific(leaseID):
         "leaseID": 0,
         "startDate": 0,
         "endDate": 0,
+        "property_ID": 0,
+        "room_ID": 0,
         "clientSSN": 0,
     }
 
@@ -102,7 +104,9 @@ def leaseagreement_specific(leaseID):
                 form["leaseID"] = l[0]
                 form["startDate"] = l[1]
                 form["endDate"] = l[2]
-                form["clientSSN"] = l[4]
+                form["property_ID"] = l[3]
+                form["room_ID"] = l[4]
+                form["clientSSN"] = l[6]
     
     #return page
     return render_template("LeaseAgreementEdit.html", form=form)
@@ -114,12 +118,16 @@ def add_leaseagreement():
     lease_id = int(request.form["leaseID"])
     start_date = request.form["start_date"]
     end_date = request.form["end_date"]
+    property_ID = request.form["property_ID"]
+    room_ID = request.form["room_ID"]
     clientSSN = request.form["clientSSN"]
 
     form = {
         "leaseID": lease_id,
         "startDate": start_date,
         "endDate": end_date,
+        "property_ID": property_ID,
+        "room_ID": room_ID,
         "clientSSN": clientSSN
     }
 
@@ -130,12 +138,21 @@ def add_leaseagreement():
         existuser = conn.execute("SELECT * FROM CLIENT").fetchall()
         existuser = list(zip(*existuser))[0]
 
+        existpropertyroom = conn.execute("SELECT PropertyID, RoomID FROM ROOM").fetchall()
+        print(existpropertyroom)
+        existproperty = list(zip(*existpropertyroom))[0]
+
         #check to see that the inputted client is valid
         if int(clientSSN) not in existuser:
             return render_template("LeaseAgreementEdit.html", form=form, error="invalid client SSN")
         #check to see that the inputted date range is valid
         elif start_date > end_date:
             return render_template("LeaseAgreementEdit.html", form=form, error="Invalid date range: the end date cannot be earlier than the start date")
+        elif int(property_ID) not in existproperty:
+            return render_template("LeaseAgreementEdit.html", form=form, error="property does not exist")
+        elif (int(property_ID), int(room_ID)) not in existpropertyroom:
+            return render_template("LeaseAgreementEdit.html", form=form, error="room does not exist")
+
 
         if lease_id == 0:
             # --- ADD NEW ---
@@ -153,15 +170,15 @@ def add_leaseagreement():
 
             #insert new lease agreement
             cursor.execute("""
-                INSERT INTO LEASEAGREEMENT (LeaseID, StartDate, EndDate, OwnerSSN, ClientSSN)
-                VALUES (?, ?, ?, ?, ?)
-            """, (new_id, start_date, end_date, session.get('ssn'), clientSSN))
+                INSERT INTO LEASEAGREEMENT (LeaseID, StartDate, EndDate, PropertyID, RoomID, OwnerSSN, ClientSSN)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (new_id, start_date, end_date, property_ID, room_ID, session.get('ssn'), clientSSN))
 
         else:
             # --- UPDATE EXISTING ---
             cursor.execute("""
-                UPDATE LEASEAGREEMENT SET StartDate = ?, EndDate = ?, ClientSSN = ? WHERE LeaseID = ?
-            """, (start_date, end_date, clientSSN, lease_id))
+                UPDATE LEASEAGREEMENT SET StartDate = ?, EndDate = ?, Property_ID = ?, RoomID = ?, ClientSSN = ? WHERE LeaseID = ?
+            """, (start_date, end_date, property_ID, room_ID, clientSSN, lease_id))
 
         conn.commit()
 

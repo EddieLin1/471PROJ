@@ -13,8 +13,10 @@
         <th>LeaseID</th>
         <th>Start Date</th>
         <th>End Date</th>
-        <th>OwnerSSN</th>
-        <th>ClientSSN</th>
+        <th>Property ID</th>
+        <th>Room ID</th>
+        <th>Client SSN</th>
+        <th>Client Name</th>
         {% if permission %}
         <th>Edit</th>
         <th>Delete</th>
@@ -30,6 +32,8 @@
         <td>{{ la[2] }}</td> 
         <td>{{ la[3] }}</td> 
         <td>{{ la[4] }}</td>
+        <td>{{ la[6] }}</td>
+        <td>{{ la[8]+" "+la[9] }}</td>
         {% if permission %} 
         <td>
           <a href="{{ url_for('leaseagreement_specific', leaseID=la[0]) }}">Edit</a>
