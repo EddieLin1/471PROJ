@@ -399,6 +399,10 @@ def add_room():
             """, (condition, property_ID, room_ID))
 
         conn.commit()
+    
+        if session.get('access') == 'employee':
+            return service_view()
+        
     #return specific property view page
     return property_specific(property_ID)
 

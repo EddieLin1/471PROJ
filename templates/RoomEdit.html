@@ -28,7 +28,6 @@
           <label for="condition" class="form-label">Room Condition</label>
           <input type="text" class="form-control" name="condition" value="{{ form.condition }}">
         </div>
-
         <button type="submit" class="btn btn-primary">
           {% if form.room_ID != 0 %}Update Room{% else %}Add Room{% endif %}
         </button>

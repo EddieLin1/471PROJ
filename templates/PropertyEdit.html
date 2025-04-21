@@ -47,9 +47,11 @@
   {% if session.get('access') == 'homeowner' %}
   <div class="row">
     <div class="col-md-7">
-      <img src="{{ url_for('static', filename='images/' ~ image_name) }}"
-      alt="Property Image"
-      style="width: 500px; border-radius: 8px; margin: 20px">
+      {% if form.property_id != 0 %}
+        <img src="{{ url_for('static', filename='images/' ~ image_name) }}"
+        alt="Property Image"
+        style="width: 500px; border-radius: 8px; margin: 20px">
+      {% endif %}
       <form method="POST" action="/add-property">
         <input type="hidden" name="property_id" value="{{ form.property_id }}">
 
