@@ -191,6 +191,9 @@ def insert_dummy_data():
     cursor.execute("INSERT OR IGNORE INTO REQUESTS VALUES (?, ?, ?)", (4001, 1, 1001))
     cursor.execute("INSERT OR IGNORE INTO REQUESTS VALUES (?, ?, ?)", (4002, 1, 1002))
     cursor.execute("INSERT OR IGNORE INTO REQUESTS VALUES (?, ?, ?)", (5001, 1, 1003))
+    # WORKS_ON
+    cursor.execute("INSERT OR IGNORE INTO WORKS_ON VALUES (?, ?, ?)", (4001, 1, 3001))
+    
 
     conn.commit()
     conn.close()

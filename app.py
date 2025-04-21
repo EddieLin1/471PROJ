@@ -49,7 +49,8 @@ def login():
                         access = "employee"
 
                 session["access"] = access
-                
+                if access == "employee":
+                    return service_view()
                 return property()
         
         # Return the login page with an error message
@@ -319,6 +320,30 @@ def tappt():
     
     return render_template("tappt.html", tas=tas)
 
+
+@app.route("/service-view", methods=["GET"])
+def service_view():
+    with sqlite3.connect("Homeapp.db") as conn:
+        ssn = session.get("ssn")
+        query = """
+            SELECT r.PropertyID, r.RoomID, r.Condition, p.Address
+            FROM ROOM r
+            INNER JOIN WORKS_ON w ON r.PropertyID = w.PropertyID AND r.RoomID = w.RoomID
+            INNER JOIN PROPERTY p ON r.PropertyID = p.PropertyID
+            WHERE w.ESSN = ?
+        """
+        services = conn.execute(query, (ssn,)).fetchall()
+    return render_template("ServiceView.html", services=services)
+
+# --- Delete WORKS_ON route ---
+@app.route("/delete-workson/<int:property_id>/<int:room_id>", methods=["GET"])
+def delete_workson(property_id, room_id):
+    ssn = session.get("ssn")
+    with sqlite3.connect("Homeapp.db") as conn:
+        conn.execute("PRAGMA foreign_keys = ON")
+        conn.execute("DELETE FROM WORKS_ON WHERE PropertyID = ? AND RoomID = ? AND ESSN = ?", (property_id, room_id, ssn))
+        conn.commit()
+    return service_view()
 
 if __name__ == '__main__':
     app.run(debug=True)

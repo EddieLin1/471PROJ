@@ -8,20 +8,26 @@
   <table>
     <thead>
       <tr>
-        <th>Request ID</th>
+        <th>Property ID</th>
         <th>Room ID</th>
-        <th>Issue</th>
-        <th>Status</th>
+        <th>Condition</th>
+        <th>Address</th>
+        <th>Action</th>
       </tr>
     </thead>
     <tbody>
-      <!-- Dynamic content -->
-      <tr>
-        <td>SR001</td>
-        <td>101</td>
-        <td>Leaking Faucet</td>
-        <td>Pending</td>
-      </tr>
+      {% for service in services %}
+        <tr>
+          <td>{{ service[0] }}</td>
+          <td>{{ service[1] }}</td>
+          <td>{{ service[2] }}</td>
+          <td>{{ service[3] }}</td>
+          <td>
+            <a href="#" style="color:blue; margin-right: 10px;">View Details</a>
+            <a href="{{ url_for('delete_workson', property_id=service[0], room_id=service[1]) }}" style="color:red;">Delete</a>
+          </td>
+        </tr>
+      {% endfor %}
     </tbody>
   </table>
 </div>
