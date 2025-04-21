@@ -325,7 +325,7 @@ def service_view():
             FROM ROOM r
             INNER JOIN WORKS_ON w ON r.PropertyID = w.PropertyID AND r.RoomID = w.RoomID
             INNER JOIN PROPERTY p ON r.PropertyID = p.PropertyID
-            WHERE r.Condition != 'Excellent' AND w.ESSN = ?
+            WHERE w.ESSN = ?
         """
         services = conn.execute(query, (ssn,)).fetchall()
     return render_template("ServiceView.html", services=services)
