@@ -49,7 +49,8 @@ def login():
                         access = "employee"
 
                 session["access"] = access
-                
+                if access == "employee":
+                    return service_view()
                 return property()
         
         # Return the login page with an error message
@@ -314,6 +315,12 @@ def tappt():
     
     return render_template("tappt.html", tas=tas)
 
+
+@app.route("/service-view", methods=["GET"])
+def service_view():
+    with sqlite3.connect("Homeapp.db") as conn:
+        services = conn.execute("SELECT * FROM property").fetchall()
+    return render_template("ServiceView.html", services=services)
 
 if __name__ == '__main__':
     app.run(debug=True)
