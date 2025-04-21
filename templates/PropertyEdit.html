@@ -37,6 +37,7 @@
     {% endif %}
   </h2>
   <a href="/property-view" class="btn btn-secondary">Back</a>
+  {% if session.get('access') == 'homeowner' %}
   <div class="row">
     <div class="col-md-7">
       <form method="POST" action="/add-property">
@@ -79,13 +80,58 @@
         </button>
       </form>
     </div>
+    {% else %}
+    <div class="row">
+      <div class="col-md-7">
+        <div class="mb-3">
+            <label for="propertyType" class="form-label"><b>Property Type</b></label>
+            <p>{{ form.property_type }}</p>   
+        </div>
+          
+        <!-- Apartment-specific field -->
+        <div class="mb-3" id="floorNumberField" style="display: none;">
+          <label for="floor_number" class="form-label"><b>Floor Number</b></label>
+          <p>{{ form.floor_number }}</p>
+        </div>
+          
+        <!-- House-specific field -->
+        <div class="mb-3" id="numFloorsField" style="display: none;">
+          <label for="num_floors" class="form-label"><b>Number of Floors</b></label>
+          <p>{{ form.num_floors}}</p>
+        </div>
+
+        <div class="mb-3">
+          <label for="address" class="form-label"><b>Address</b></label>
+          <p>{{ form.address }}</p>
+        </div>
+
+        <div class="mb-3">
+          <label for="description" class="form-label"><b>Description</b></label>
+          <p>{{ form.description }}</p>
+        </div>
+      </div>
+
+    {% endif %}
+
     <div class="col-md-5 border-start ps-4">
+
+      {% if session.get('access') == 'homeowner' %}
+      <a href="{{ url_for('room_specific', propertyID=form.property_id, roomID=0) }}" class="btn btn-secondary">Add New Room</a>
+      {% endif %}
+
       <h4>Rooms</h4>
       <table>
         <thead>
           <tr>
             <th>Room Number</th>
             <th>Condition</th>
+            <th>Edit</th>
+            {% if session.get('access') == 'homeowner' %}
+            <th>Remove</th>
+            {% endif %}
+            {% if session.get('access') == 'client' %}
+            <th>Rent Request</th>
+            {% endif %}
           </tr>
         </thead>
         <tbody>
@@ -95,6 +141,23 @@
             <tr>
               <td>{{ r[1] }}</td>  
               <td>{{ r[2] }}</td> 
+              <td>
+                <a href="{{ url_for('room_specific', propertyID=form.property_id, roomID=r[1]) }}">Edit</a>
+                
+              </td>
+              {% if session.get('access') == 'homeowner' %}
+              <td>
+                <a href="{{ url_for('delete_room', propertyID=form.property_id, roomID=r[1]) }}"
+                  onclick="return confirm('Are you sure you want to delete this room?');"
+                  class="text-danger">Delete</a> 
+              </td>
+              {% endif %}
+
+              {% if session.get('access') == 'client' %}
+              <td>
+                <a href="">Inquire</a> 
+              </td>
+              {% endif %}
             </tr>
             {% endfor %} 
           {% endif %}

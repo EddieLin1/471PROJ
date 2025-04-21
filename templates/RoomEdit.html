@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Property View Specific{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+  <h2 class="mb-4">
+    {% if form.room_ID != 0 %}
+      Edit Room #{{ form.room_ID }}
+    {% else %}
+      Add New Room
+    {% endif %}
+  </h2>
+  <!--Fix next line-->
+  <a href="{{ url_for('property_specific', property_id=form.property_ID) }}" class="btn btn-secondary">Back</a>
+  <div class="row">
+    <div class="col-md-7">
+      <form method="POST" action="/add-room">
+        <input type="hidden" name="property_ID" value="{{ form.property_ID }}">
+        <input type="hidden" name="room_ID" value="{{ form.room_ID }}">
+
+        <div class="mb-3">
+          <label for="condition" class="form-label">Room Condition</label>
+          <input type="text" class="form-control" name="condition" value="{{ form.condition }}">
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+          {% if form.room_ID != 0 %}Update Room{% else %}Add Room{% endif %}
+        </button>
+      </form>
+    </div>
+
+
+    {% if session.get('access') == 'homeowner' %}
+    {% if form.room_ID != 0 %}
+    <div class="col-md-5 border-start ps-4">
+        <h4>Employees</h4>
+        <table>
+            <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Specialization</th>
+                <th>Remove</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Dynamic backend content -->
+            {% if es %} 
+                {% for e in es %}
+                <tr>
+                <td>{{ e[2] }}</td> 
+                <td>{{ e[4] }}</td> 
+                <td>
+                    <a href="{{ url_for('delete_employee', propertyID=form.property_ID, roomID=form.room_ID, ESSN=e[2]) }}"
+                    onclick="return confirm('Are you sure you want to delete this employee?');"
+                    class="text-danger">Delete</a> 
+                </td>
+                </tr>
+                {% endfor %} 
+            {% endif %}
+            </tbody>
+        </table>
+        
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('add_employee', propertyID=form.property_ID, roomID=form.room_ID) }}">
+            <input type="hidden" name="property_ID" value="{{ form.property_ID }}">
+            <input type="hidden" name="room_ID" value="{{ form.room_ID }}">
+            <input type="hidden" name="condition" value="{{ form.condition }}">
+
+            <div class="mb-3">
+                <label for="address" class="form-label">Employee SSN</label>
+                <input type="number" class="form-control" name="ESSN" value="" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+            Add Employee
+            </button>
+        </form>
+    </div>
+    {% endif %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+

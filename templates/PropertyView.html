@@ -20,7 +20,10 @@
         <th>Address</th>
         <th>Description</th>
         <th>OwnerSSN</th>
-        <th>Link</th>
+        <th>Details</th>
+        {% if session.get('access') == 'homeowner' %}
+        <th>Remove</th>
+        {% endif %}
       </tr>
     </thead>
     <tbody>
