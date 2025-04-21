@@ -298,6 +298,130 @@ def delete_property(property_id):
     
     return property()
 
+
+@app.route("/room-view/<int:propertyID>/<int:roomID>", methods=["GET"])
+def room_specific(propertyID, roomID):
+    #initialize form values
+    form = {
+        "property_ID": propertyID,
+        "room_ID": 0,
+        "condition": "" 
+    }
+    es = None
+
+    #if not asking for a new room, retrieve attributes of a specific room based on ids
+    if roomID != 0:
+        with sqlite3.connect("Homeapp.db") as conn:
+            l = conn.execute("SELECT * FROM ROOM WHERE PropertyID = ? AND RoomID = ?", (propertyID, roomID, )).fetchone()
+            if l:
+                form["room_ID"] = l[1]
+                form["condition"] = l[2]
+            es = conn.execute("SELECT * FROM WORKS_ON WHERE PropertyID = ? AND RoomID = ?", (propertyID, roomID, )).fetchall()
+
+    #return page
+    return render_template("RoomEdit.html", form=form, es=es)
+
+@app.route("/add-room", methods=["POST"])
+def add_room():
+    property_ID = int(request.form["property_ID"])
+    room_ID = int(request.form["room_ID"])
+    condition = request.form["condition"]
+
+
+    with sqlite3.connect("Homeapp.db") as conn:
+        cursor = conn.cursor()
+
+        if room_ID == 0:
+            # --- ADD NEW ---
+            base_id = 0
+            # Find the first unused ID in the range 0 - 1
+            existing_ids = cursor.execute("""
+                SELECT RoomID FROM ROOM WHERE PropertyID = ? AND RoomID BETWEEN ? AND ? ORDER BY RoomID
+            """, (property_ID, base_id + 1, base_id + 999)).fetchall()
+
+            existing_ids_set = {row[0] for row in existing_ids}
+            for candidate_id in range(base_id + 1, base_id + 1000):
+                if candidate_id not in existing_ids_set:
+                    new_id = candidate_id
+                    break
+
+            #insert new lease agreement
+            cursor.execute("""
+                INSERT INTO ROOM (PropertyID, RoomID, Condition)
+                VALUES (?, ?, ?)
+            """, (property_ID, new_id, condition))
+
+        else:
+            # --- UPDATE EXISTING ---
+            cursor.execute("""
+                UPDATE ROOM SET Condition = ? WHERE PropertyID = ? AND RoomID = ?
+            """, (condition, property_ID, room_ID))
+
+        conn.commit()
+
+    return property_specific(property_ID)
+
+@app.route("/room-delete/<int:propertyID>/<int:roomID>", methods=["GET"])
+def delete_room(propertyID, roomID):
+    with sqlite3.connect("Homeapp.db") as conn:
+        conn.execute("PRAGMA foreign_keys = ON")
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM ROOM WHERE PropertyID = ? AND RoomID = ?", (propertyID, roomID, ))
+        conn.commit()
+    
+    return property_specific(propertyID)
+
+@app.route("/room-add-employee/<int:propertyID>/<int:roomID>", methods=["POST"])
+def add_employee(propertyID, roomID):
+    property_ID = int(request.form["property_ID"])
+    room_ID = int(request.form["room_ID"])
+    condition = request.form["condition"]
+    emp_SSN = request.form["ESSN"]
+
+    form = {
+        "property_ID": property_ID,
+        "room_ID": room_ID,
+        "condition": condition,
+        "ESSN": emp_SSN
+    }
+    es = None
+
+    with sqlite3.connect("Homeapp.db") as conn:
+        cursor = conn.cursor()
+
+        existemp = conn.execute("SELECT * FROM EMPLOYEE").fetchall()
+        existemp = list(zip(*existemp))[0]
+
+        es = conn.execute("SELECT * FROM WORKS_ON WHERE PropertyID = ? AND RoomID = ?", (propertyID, roomID, )).fetchall()
+
+        #check to see that the inputted client is valid
+        if int(emp_SSN) not in existemp:
+            return render_template("RoomEdit.html", form=form, es=es, error="invalid employee SSN")
+        
+        existworks = conn.execute("SELECT * FROM WORKS_ON WHERE PropertyID = ? AND RoomID = ?", (propertyID, roomID, )).fetchall()
+        if existworks:
+            existworks = list(zip(*existworks))[2]
+            if int(emp_SSN) in existworks:
+                return render_template("RoomEdit.html", form=form, es=es, error="employee already works on this room")
+        
+        cursor.execute("""
+                INSERT INTO WORKS_ON (PropertyID, RoomID, ESSN)
+                VALUES (?, ?, ?)
+            """, (property_ID, room_ID, emp_SSN))
+        
+    return room_specific(propertyID, roomID)
+
+@app.route("/room-delete-employee/<int:propertyID>/<int:roomID>/<int:ESSN>", methods=["GET"])
+def delete_employee(propertyID, roomID, ESSN):
+    with sqlite3.connect("Homeapp.db") as conn:
+        conn.execute("PRAGMA foreign_keys = ON")
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM WORKS_ON WHERE PropertyID = ? AND RoomID = ? AND ESSN = ?", (propertyID, roomID, ESSN, ))
+        conn.commit()
+    
+    return room_specific(propertyID, roomID)
+
+
 @app.route("/test-house", methods=["GET"])
 def thouse():
 
