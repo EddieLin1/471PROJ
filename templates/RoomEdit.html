@@ -13,7 +13,11 @@
     {% endif %}
   </h2>
   <!--Fix next line-->
-  <a href="{{ url_for('property_specific', property_id=form.property_ID) }}" class="btn btn-secondary">Back</a>
+  {% if session.get('access') == 'employee' %}
+    <a href="/service-view" class="btn btn-secondary">Back</a>
+  {% else %}
+    <a href="{{ url_for('property_specific', property_id=form.property_ID) }}" class="btn btn-secondary">Back</a>
+  {% endif %}
   <div class="row">
     <div class="col-md-7">
       <form method="POST" action="/add-room">
