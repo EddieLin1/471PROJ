@@ -33,12 +33,14 @@
 
 
     {% if session.get('access') == 'homeowner' %}
+    {% if form.room_ID != 0 %}
     <div class="col-md-5 border-start ps-4">
         <h4>Employees</h4>
         <table>
             <thead>
             <tr>
                 <th>Employee</th>
+                <th>Specialization</th>
                 <th>Remove</th>
             </tr>
             </thead>
@@ -47,7 +49,8 @@
             {% if es %} 
                 {% for e in es %}
                 <tr>
-                <td>{{ e[2] }}</td>  
+                <td>{{ e[2] }}</td> 
+                <td>{{ e[4] }}</td> 
                 <td>
                     <a href="{{ url_for('delete_employee', propertyID=form.property_ID, roomID=form.room_ID, ESSN=e[2]) }}"
                     onclick="return confirm('Are you sure you want to delete this employee?');"
@@ -80,6 +83,7 @@
             </button>
         </form>
     </div>
+    {% endif %}
     {% endif %}
   </div>
 </div>

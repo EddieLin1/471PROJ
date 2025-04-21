@@ -349,7 +349,7 @@ def room_specific(propertyID, roomID):
                 form["room_ID"] = l[1]
                 form["condition"] = l[2]
             #get employees working on the room
-            es = conn.execute("SELECT * FROM WORKS_ON WHERE PropertyID = ? AND RoomID = ?", (propertyID, roomID, )).fetchall()
+            es = conn.execute("SELECT * FROM WORKS_ON INNER JOIN EMPLOYEE ON WORKS_ON.ESSN = EMPLOYEE.SSN WHERE PropertyID = ? AND RoomID = ?", (propertyID, roomID, )).fetchall()
 
     #return page
     return render_template("RoomEdit.html", form=form, es=es)
@@ -433,7 +433,8 @@ def add_employee(propertyID, roomID):
         existemp = list(zip(*existemp))[0]
 
         #get list of employees currently working on a room
-        es = conn.execute("SELECT * FROM WORKS_ON WHERE PropertyID = ? AND RoomID = ?", (propertyID, roomID, )).fetchall()
+        es = conn.execute("SELECT * FROM WORKS_ON INNER JOIN EMPLOYEE ON WORKS_ON.ESSN = EMPLOYEE.SSN WHERE PropertyID = ? AND RoomID = ?", (propertyID, roomID, )).fetchall()
+        print(es)
 
         #check to see that the inputted client is valid
         if int(emp_SSN) not in existemp:
