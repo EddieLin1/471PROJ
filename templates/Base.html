@@ -21,7 +21,7 @@
                 {% if session.get('access') == 'homeowner' %}
                     <nav>
                         <a href="/property-view" class="text-white me-3">Properties</a>
-                        <a href="/contractor-view" class="text-white me-3">Services</a>
+                        <a href="/contractor-view" class="text-white me-3">Contractor List</a>
                         <a href="/lease-agreement-view" class="text-white me-3">Lease Agreements</a>
                         <a href="/test-house" class="text-white me-3">test house</a>
                         <a href="/test-appt" class="text-white me-3">test appt</a>
@@ -34,7 +34,7 @@
                     </nav>
                 {% elif session.get('access') == 'employee' %}
                 <nav>
-                    <a href="/contractor-view" class="text-white me-3">Service</a>
+                    <a href="/service-view" class="text-white me-3">Service</a>
                 </nav>
                 {% endif %} 
             </div>
