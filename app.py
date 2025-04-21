@@ -321,9 +321,10 @@ def service_view():
     with sqlite3.connect("Homeapp.db") as conn:
         ssn = session.get("ssn")
         query = """
-            SELECT r.PropertyID, r.RoomID, r.Condition
+            SELECT r.PropertyID, r.RoomID, r.Condition, p.Address
             FROM ROOM r
             INNER JOIN WORKS_ON w ON r.PropertyID = w.PropertyID AND r.RoomID = w.RoomID
+            INNER JOIN PROPERTY p ON r.PropertyID = p.PropertyID
             WHERE r.Condition != 'Excellent' AND w.ESSN = ?
         """
         services = conn.execute(query, (ssn,)).fetchall()
