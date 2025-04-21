@@ -319,7 +319,14 @@ def tappt():
 @app.route("/service-view", methods=["GET"])
 def service_view():
     with sqlite3.connect("Homeapp.db") as conn:
-        services = conn.execute("SELECT PropertyID, RoomID, Condition FROM ROOM WHERE Condition != 'Excellent'").fetchall()
+        ssn = session.get("ssn")
+        query = """
+            SELECT r.PropertyID, r.RoomID, r.Condition
+            FROM ROOM r
+            INNER JOIN WORKS_ON w ON r.PropertyID = w.PropertyID AND r.RoomID = w.RoomID
+            WHERE r.Condition != 'Excellent' AND w.ESSN = ?
+        """
+        services = conn.execute(query, (ssn,)).fetchall()
     return render_template("ServiceView.html", services=services)
 
 if __name__ == '__main__':
