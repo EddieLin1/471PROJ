@@ -189,6 +189,11 @@ def property():
 
     return render_template("PropertyView.html", ps=ps)
 
+@app.route("/property-view-personal", methods=["GET"])
+def property_personal():
+    with sqlite3.connect("Homeapp.db") as conn:
+        ps = conn.execute("SELECT * FROM property p INNER JOIN leaseagreement l ON p.PropertyID = l.PropertyID WHERE l.CLientSSN = ?", (session.get('ssn'),)).fetchall()
+    return render_template("PropertyView.html", ps=ps, personal=True)
 
 @app.route("/property-view/<int:property_id>", methods=["GET"])
 def property_specific(property_id):
