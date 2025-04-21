@@ -22,7 +22,7 @@
           <td>{{ service[2] }}</td>
           <td>
             <a href="#" style="color:blue; margin-right: 10px;">View Details</a>
-            <a href="#" style="color:red;">Delete</a>
+            <a href="{{ url_for('delete_workson', property_id=service[0], room_id=service[1]) }}" style="color:red;">Delete</a>
           </td>
         </tr>
       {% endfor %}
