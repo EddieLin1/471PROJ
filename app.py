@@ -67,22 +67,36 @@ def logout():
 def contractor():
 
     with sqlite3.connect("Homeapp.db") as conn:
-        emps = conn.execute("SELECT e.SSN, e.JobType, p.FirstName, p.LastName, c.CompanyName FROM employee e INNER JOIN person p ON e.SSN == p.SSN INNER JOIN works_for w ON w.EmployeeSSN = e.SSN INNER JOIN company c ON w.CompanyID = c.CompanyID").fetchall()
+        emps = conn.execute("SELECT e.SSN, e.JobType, p.FirstName, p.LastName, c.CompanyName, p.Phone FROM employee e INNER JOIN person p ON e.SSN == p.SSN INNER JOIN works_for w ON w.EmployeeSSN = e.SSN INNER JOIN company c ON w.CompanyID = c.CompanyID").fetchall()
     
     return render_template("ContractorView.html", emps=emps)
 
 @app.route("/lease-agreement-view", methods=["GET"])
 def leaseAgreement():
-    #get lease agreements associated with a user
+    # get lease agreements associated with a user, including phone numbers
     with sqlite3.connect("Homeapp.db") as conn:
-        las = conn.execute("SELECT l.LeaseID, l.StartDate, l.EndDate, l.PropertyID, l.RoomID, l.OwnerSSN, p2.FirstName, p2.LastName, l.ClientSSN, p1.FirstName, p1.LastName FROM leaseagreement AS l INNER JOIN person AS p1 ON l.ClientSSN = p1.SSN INNER JOIN person as p2 ON l.OwnerSSN = p2.SSN WHERE OwnerSSN = ? UNION SELECT l.LeaseID, l.StartDate, l.EndDate, l.PropertyID, l.RoomID, l.OwnerSSN, p2.FirstName, p2.LastName, l.ClientSSN, p1.FirstName, p1.LastName FROM leaseagreement AS l INNER JOIN person AS p1 ON l.ClientSSN = p1.SSN INNER JOIN person as p2 ON l.OwnerSSN = p2.SSN WHERE ClientSSN = ?", (session.get('ssn'), session.get('ssn'),)).fetchall()
-    
-    #check permissions
+        las = conn.execute("""
+            SELECT l.LeaseID, l.StartDate, l.EndDate, l.PropertyID, l.RoomID,
+                   l.OwnerSSN, p2.FirstName, p2.LastName, p2.Phone,
+                   l.ClientSSN, p1.FirstName, p1.LastName, p1.Phone
+            FROM leaseagreement AS l
+            INNER JOIN person AS p1 ON l.ClientSSN = p1.SSN
+            INNER JOIN person AS p2 ON l.OwnerSSN = p2.SSN
+            WHERE OwnerSSN = ?
+            UNION
+            SELECT l.LeaseID, l.StartDate, l.EndDate, l.PropertyID, l.RoomID,
+                   l.OwnerSSN, p2.FirstName, p2.LastName, p2.Phone,
+                   l.ClientSSN, p1.FirstName, p1.LastName, p1.Phone
+            FROM leaseagreement AS l
+            INNER JOIN person AS p1 ON l.ClientSSN = p1.SSN
+            INNER JOIN person AS p2 ON l.OwnerSSN = p2.SSN
+            WHERE ClientSSN = ?
+        """, (session.get('ssn'), session.get('ssn'))).fetchall()
+    # check permissions
     if session.get('access') == "homeowner":
         addremoveView = True
     else:
         addremoveView = False
-
     return render_template("LeaseAgreementView.html", las=las, permission=addremoveView)
 
 @app.route("/lease-agreement-view/<int:leaseID>", methods=["GET"])
@@ -562,10 +576,10 @@ def delete_workson(property_id, room_id):
 def my_request_view():
     if session.get('access') == 'homeowner':
         with sqlite3.connect("Homeapp.db") as conn:
-            requests = conn.execute("SELECT r.PropertyID, r.RoomID, r.ClientSSN, per2.FirstName, per2.LastName FROM REQUESTS r INNER JOIN PROPERTY p ON p.PropertyID = r.PropertyID INNER JOIN PERSON per1 ON p.OwnerSSN = per1.SSN INNER JOIN PERSON per2 ON r.ClientSSN = per2.SSN WHERE OwnerSSN = ?", (session.get('ssn'),)).fetchall()
+            requests = conn.execute("SELECT r.PropertyID, r.RoomID, r.ClientSSN, per2.FirstName, per2.LastName, per2.Phone FROM REQUESTS r INNER JOIN PROPERTY p ON p.PropertyID = r.PropertyID INNER JOIN PERSON per1 ON p.OwnerSSN = per1.SSN INNER JOIN PERSON per2 ON r.ClientSSN = per2.SSN WHERE OwnerSSN = ?", (session.get('ssn'),)).fetchall()
     else:
         with sqlite3.connect("Homeapp.db") as conn:
-            requests = conn.execute("SELECT r.PropertyID, r.RoomID, p.OwnerSSN, per1.FirstName, per1.LastName FROM REQUESTS r INNER JOIN PROPERTY p ON p.PropertyID = r.PropertyID INNER JOIN PERSON per1 ON p.OwnerSSN = per1.SSN INNER JOIN PERSON per2 ON r.ClientSSN = per2.SSN WHERE ClientSSN = ?", (session.get('ssn'),)).fetchall()
+            requests = conn.execute("SELECT r.PropertyID, r.RoomID, p.OwnerSSN, per1.FirstName, per1.LastName, per1.Phone FROM REQUESTS r INNER JOIN PROPERTY p ON p.PropertyID = r.PropertyID INNER JOIN PERSON per1 ON p.OwnerSSN = per1.SSN INNER JOIN PERSON per2 ON r.ClientSSN = per2.SSN WHERE ClientSSN = ?", (session.get('ssn'),)).fetchall()
 
     print(requests)
     return render_template("RequestView.html", requests=requests)

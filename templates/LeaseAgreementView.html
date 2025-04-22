@@ -20,9 +20,11 @@
         {% if session.get('access') == 'client' %}
         <th>Owner SSN</th>
         <th>Owner Name</th>
+        <th>Owner Phone</th>
         {% elif session.get('access') == 'homeowner' %}
         <th>Client SSN</th>
         <th>Client Name</th>
+        <th>Client Phone</th>
         {% endif %}
         {% if permission %}
         <th>Edit</th>
@@ -42,9 +44,11 @@
         {% if session.get('access') == 'client' %}
         <td>{{ la[5] }}</td>  <!--Owner SSN-->
         <td>{{ la[6]+" "+la[7] }}</td> <!--Owner Name-->
+        <td>{{ la[8] }}</td> <!--Owner Phone-->
         {% elif session.get('access') == 'homeowner' %}
-        <td>{{ la[8] }}</td>  <!--Client SSN-->
-        <td>{{ la[9]+" "+la[10] }}</td>  <!--client name-->
+        <td>{{ la[9] }}</td>  <!--Client SSN-->
+        <td>{{ la[10]+" "+la[11] }}</td>  <!--client name-->
+        <td>{{ la[12] }}</td> <!--Client Phone-->
         {% endif %}
         {% if permission %} 
         <td>
