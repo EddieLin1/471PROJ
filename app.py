@@ -303,16 +303,21 @@ def property_specific(property_id):
                     form["property_type"] = "house"
                     form["num_floors"] = h[0]
                 rs = conn.execute("""
-                            SELECT r.*, 
-                                EXISTS (
-                                    SELECT 1 FROM REQUESTS req 
-                                    WHERE req.PropertyID = r.PropertyID 
-                                        AND req.RoomID = r.RoomID
-                                ) AS HasRequest
-                            FROM ROOM r
-                            WHERE r.PropertyID = ?
-                        """, (property_id,)).fetchall()
-                print(rs)
+                    SELECT r.*,
+                        EXISTS (
+                            SELECT 1 FROM REQUESTS req
+                            WHERE req.PropertyID = r.PropertyID
+                                AND req.RoomID = r.RoomID
+                        ) 
+                        OR EXISTS (
+                            SELECT 1 FROM LEASEAGREEMENT l
+                            WHERE l.PropertyID = r.PropertyID
+                                AND l.RoomID = r.RoomID
+                                AND l.ClientSSN = ?
+                        ) AS HasRequest
+                    FROM ROOM r
+                    WHERE r.PropertyID = ?
+                """, (session.get('ssn'), property_id)).fetchall()
 
     return render_template("PropertyEdit.html", form=form, rs=rs)
 
@@ -411,7 +416,6 @@ def room_specific(propertyID, roomID):
                 form["condition"] = l[2]
             #get employees working on the room
             es = conn.execute("SELECT * FROM WORKS_ON INNER JOIN EMPLOYEE ON WORKS_ON.ESSN = EMPLOYEE.SSN INNER JOIN PERSON ON EMPLOYEE.SSN = PERSON.SSN WHERE PropertyID = ? AND RoomID = ?", (propertyID, roomID, )).fetchall()
-            print(es)
     #return page
     return render_template("RoomEdit.html", form=form, es=es)
 
