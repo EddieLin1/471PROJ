@@ -607,5 +607,11 @@ def add_request(property_id, room_id):
                 """, (property_id, room_id, session.get('ssn')))
     return my_request_view()
 
+
+# Legal route
+@app.route("/legal", methods=["GET"])
+def legal():
+    return render_template("Legal.html")
+
 if __name__ == '__main__':
     app.run(debug=True)

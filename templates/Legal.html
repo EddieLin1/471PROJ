@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}Legal{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Legal Information</h2>
+    <p>This is the legal disclaimer or terms of use for the Rentify application.</p>
+    <a href="{{ request.referrer or url_for('property') }}" class="btn btn-secondary mt-3">Back</a>
+</div>
+{% endblock %}

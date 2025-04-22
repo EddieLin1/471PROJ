@@ -20,23 +20,23 @@
                 <h1 class="display-6 m-0 me-4">Rentify</h1>
                 {% if session.get('access') == 'homeowner' %}
                     <nav>
-                        <a href="/property-view" class="text-white me-3">Properties</a>
-                        <a href="/lease-agreement-view" class="text-white me-3">Lease Agreements</a>
-                        <a href="/contractor-view" class="text-white me-3">Contractor List</a>
-                        <a href="/my-requests" class="text-white me-3">My Requests</a>
+                        <a href="/property-view" class="text-white me-3 {% if request.path == '/property-view' %}nav-active{% endif %}">Properties</a>
+                        <a href="/lease-agreement-view" class="text-white me-3 {% if request.path == '/lease-agreement-view' %}nav-active{% endif %}">Lease Agreements</a>
+                        <a href="/contractor-view" class="text-white me-3 {% if request.path == '/contractor-view' %}nav-active{% endif %}">Contractor List</a>
+                        <a href="/my-requests" class="text-white me-3 {% if request.path == '/my-requests' %}nav-active{% endif %}">My Requests</a>
                     </nav>
                 {% elif session.get('access') == 'client' %}
-                    <nav> 
-                        <a href="/property-view" class="text-white me-3">Properties</a>
-                        <a href="/lease-agreement-view" class="text-white me-3">Lease Agreements</a>
-                        <a href="/property-view-personal" class="text-white me-3">My Renting</a>
-                        <a href="/my-requests" class="text-white me-3">My Requests</a>
+                    <nav>
+                        <a href="/property-view" class="text-white me-3 {% if request.path == '/property-view' %}nav-active{% endif %}">Properties</a>
+                        <a href="/lease-agreement-view" class="text-white me-3 {% if request.path == '/lease-agreement-view' %}nav-active{% endif %}">Lease Agreements</a>
+                        <a href="/property-view-personal" class="text-white me-3 {% if request.path == '/property-view-personal' %}nav-active{% endif %}">My Renting</a>
+                        <a href="/my-requests" class="text-white me-3 {% if request.path == '/my-requests' %}nav-active{% endif %}">My Requests</a>
                     </nav>
                 {% elif session.get('access') == 'employee' %}
-                <nav>
-                    <a href="/service-view" class="text-white me-3">Service</a>
-                </nav>
-                {% endif %} 
+                    <nav>
+                        <a href="/service-view" class="text-white me-3 {% if request.path == '/service-view' %}nav-active{% endif %}">Service</a>
+                    </nav>
+                {% endif %}
             </div>
         
             <!-- Right-aligned content -->
@@ -57,7 +57,10 @@
 
     <!-- Common Footer -->
     <footer class="purple-bar container-fluid py-3">
-        <p>&copy; 2025 Rentify Website</p>
+        <div class="d-flex justify-content-between align-items-center">
+            <p class="mb-0">&copy; 2025 Rentify Website</p>
+            <a href="{{ url_for('legal') }}" class="btn btn-outline-light btn-sm">Legal</a>
+        </div>
     </footer>
 
     <!-- bootstrap js import -->
