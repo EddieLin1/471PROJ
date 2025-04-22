@@ -98,8 +98,15 @@ def new_account():
             cl = conn.execute("SELECT CompanyName FROM company").fetchall()
             cl = list(zip(*cl))[0]
 
+            existusername = conn.execute("SELECT P.UserName FROM person AS P").fetchall()
+            existusername = list(zip(*existusername))[0]
+
             if int(ssn) in existssn:
                 return render_template('Login.html', new=True, error="invalid SSN", cl=cl)
+            
+            #check to see that the inputted username is valid
+            if username in existusername:
+                return render_template("Login.html", new=True, error="username taken", cl=cl)
             
             conn.execute("""
                 INSERT INTO PERSON (SSN, FirstName, LastName, UserName, Password)
