@@ -23,7 +23,7 @@ def user():
     return render_template("UserView.html", users=users)
 
 @app.route("/login", methods=["GET", "POST"])
-def login(new):
+def login():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
@@ -38,15 +38,32 @@ def login(new):
                 #store name and access for login page and permissions
                 session['ssn'] = result[0]
                 session['name'] = result[1] + ' ' + result[2]
-                first_digit = str(result[0])[0]
+                
+                existhomeowner = conn.execute("SELECT SSN FROM HOMEOWNER")
+                existhomeowner = list(zip(*existhomeowner))[0]
 
-                match first_digit:
-                    case '1': 
-                        access = "client"
-                    case '2': 
-                        access = "homeowner"
-                    case '3': 
-                        access = "employee"
+                existclient = conn.execute("SELECT SSN FROM CLIENT")
+                existclient = list(zip(*existclient))[0]
+
+                existemp = conn.execute("SELECT SSN FROM EMPLOYEE")
+                existemp = list(zip(*existemp))[0]
+
+                if int(result[0]) in existhomeowner:
+                    access = "homeowner"
+                elif int(result[0]) in existclient:
+                    access = "client"
+                elif int(result[0]) in existemp:
+                    access = "employee"
+
+#                first_digit = str(result[0])[0]
+
+#                match first_digit:
+#                    case '1': 
+#                        access = "client"
+#                    case '2': 
+#                        access = "homeowner"
+#                    case '3': 
+#                        access = "employee"
 
                 session["access"] = access
                 if access == "employee":
@@ -56,6 +73,7 @@ def login(new):
         # Return the login page with an error message
         return render_template("Login.html", error="Invalid username or password.")
     
+    new=False
     return render_template('Login.html', new=new)
 
 @app.route("/new_account", methods=["GET", "POST"])
@@ -67,6 +85,8 @@ def new_account():
         firstname = request.form["firstname"]
         lastname = request.form["lastname"]
         accounttype = request.form["accounttype"]
+        if accounttype == "employee":
+            jobtype = request.form["jobtype"]
 
         with sqlite3.connect("Homeapp.db") as conn:
             cursor = conn.cursor()
@@ -87,14 +107,20 @@ def new_account():
                 INSERT INTO HOMEOWNER (SSN)
                 VALUES (?)
                 """, (ssn,))
-                return render_template('Login.html', new=new)
+                return render_template('Login.html', new=False)
             elif accounttype == "client":
                 cursor.execute("""
                 INSERT INTO CLIENT (SSN)
                 VALUES (?)
                 """, (ssn,))
-                return render_template('Login.html', new=new)
-        
+                return render_template('Login.html', new=False)
+            elif accounttype == "employee":
+                cursor.execute("""
+                INSERT INTO EMPLOYEE (SSN, JobType)
+                VALUES (?, ?)
+                """, (ssn, jobtype,))
+                return render_template('Login.html', new=False)
+          
     new = True
     return render_template('Login.html', new=new)
 
@@ -102,7 +128,7 @@ def new_account():
 @app.route("/logout", methods=["GET"])
 def logout():
     session.clear()
-    return render_template("Login.html")
+    return render_template("Login.html", new = False)
 
 @app.route("/contractor-view", methods=["GET"])
 def contractor():
