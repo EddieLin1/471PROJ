@@ -10,7 +10,8 @@ def init_db():
         FirstName TEXT NOT NULL,
         LastName TEXT,
         UserName TEXT UNIQUE,
-        Password TEXT
+        Password TEXT,
+        Phone TEXT
     );
 
     CREATE TABLE IF NOT EXISTS CLIENT (
@@ -132,16 +133,16 @@ def insert_dummy_data():
     #2~ -> homeowner
     #3~ -> employee
     persons = [
-        (1001, "Alice", "Smith", "alice", "pass123"),
-        (1002, "Bob", "Johnson", "bob", "pass123"),
-        (1003, "Cara", "Lee", "cara", "pass123"),
-        (2001, "Dan", "Rogers", "dan", "pass123"),
-        (2002, "Eva", "Wells", "eva", "pass123"),
-        (3001, "Frank", "Moore", "frank", "pass123"),
-        (3002, "Grace", "Kim", "grace", "pass123"),
-        (3003, "Peter", "Janko", "peter", "pass123"),
+        (1001, "Alice", "Smith", "alice", "pass123", "123-456-7890"),
+        (1002, "Bob", "Johnson", "bob", "pass123", "234-567-8901"),
+        (1003, "Cara", "Lee", "cara", "pass123", "345-678-9012"),
+        (2001, "Dan", "Rogers", "dan", "pass123", "456-789-0123"),
+        (2002, "Eva", "Wells", "eva", "pass123", "567-890-1234"),
+        (3001, "Frank", "Moore", "frank", "pass123", "678-901-2345"),
+        (3002, "Grace", "Kim", "grace", "pass123", "789-012-3456"),
+        (3003, "Peter", "Janko", "peter", "pass123", "890-123-4567"),
     ]
-    cursor.executemany("INSERT OR IGNORE INTO PERSON VALUES (?, ?, ?, ?, ?) ", persons)
+    cursor.executemany("INSERT OR IGNORE INTO PERSON VALUES (?, ?, ?, ?, ?, ?)", persons)
 
     # CLIENT, HOMEOWNER, EMPLOYEE
     cursor.executemany("INSERT OR IGNORE INTO CLIENT VALUES (?)", [(1001,), (1002,), (1003,)])

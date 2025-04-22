@@ -14,9 +14,11 @@
         {% if session.get('access') == 'client' %}
         <th>Owner SSN</th>
         <th>Owner Name</th>
+        <th>Owner Phone</th>
         {% elif session.get('access') == 'homeowner' %}
         <th>Client SSN</th>
         <th>Client Name</th>
+        <th>Client Phone</th>
         {% endif %}
         <th>Delete</th>
       </tr>
@@ -29,6 +31,7 @@
         <td>{{ request[1] }}</td>  <!--RoomID-->
         <td>{{ request[2] }}</td>  <!--SSN-->
         <td>{{ request[3]+" "+request[4] }}</td>  <!-- name-->
+        <td>{{ request[5] }}</td>  <!-- phone -->
         <td>
             {% if session.get('access') == 'homeowner' %}
                 <a href="{{ url_for('my_request_delete', property_id=request[0], room_id=request[1], client_ssn=request[2]) }}"
