@@ -38,15 +38,32 @@ def login():
                 #store name and access for login page and permissions
                 session['ssn'] = result[0]
                 session['name'] = result[1] + ' ' + result[2]
-                first_digit = str(result[0])[0]
+                
+                existhomeowner = conn.execute("SELECT SSN FROM HOMEOWNER")
+                existhomeowner = list(zip(*existhomeowner))[0]
 
-                match first_digit:
-                    case '1': 
-                        access = "client"
-                    case '2': 
-                        access = "homeowner"
-                    case '3': 
-                        access = "employee"
+                existclient = conn.execute("SELECT SSN FROM CLIENT")
+                existclient = list(zip(*existclient))[0]
+
+                existemp = conn.execute("SELECT SSN FROM EMPLOYEE")
+                existemp = list(zip(*existemp))[0]
+
+                if int(result[0]) in existhomeowner:
+                    access = "homeowner"
+                elif int(result[0]) in existclient:
+                    access = "client"
+                elif int(result[0]) in existemp:
+                    access = "employee"
+
+#                first_digit = str(result[0])[0]
+
+#                match first_digit:
+#                    case '1': 
+#                        access = "client"
+#                    case '2': 
+#                        access = "homeowner"
+#                    case '3': 
+#                        access = "employee"
 
                 session["access"] = access
                 if access == "employee":
@@ -56,12 +73,205 @@ def login():
         # Return the login page with an error message
         return render_template("Login.html", error="Invalid username or password.")
     
-    return render_template('Login.html')
+    new=False
+    cl=None
+    return render_template('Login.html', new=new, cl=cl)
+
+@app.route("/new_account", methods=["GET", "POST"])
+def new_account():
+    if request.method == "POST":
+        ssn = request.form["SSN"]
+        username = request.form["username"]
+        password = request.form["password"]
+        firstname = request.form["firstname"]
+        lastname = request.form["lastname"]
+        accounttype = request.form["accounttype"]
+        if accounttype == "employee":
+            jobtype = request.form["jobtype"]
+            company = request.form["company"]
+
+        with sqlite3.connect("Homeapp.db") as conn:
+            cursor = conn.cursor()
+            existssn = conn.execute("SELECT SSN FROM person").fetchall()
+            existssn = list(zip(*existssn))[0]
+
+            cl = conn.execute("SELECT CompanyName FROM company").fetchall()
+            cl = list(zip(*cl))[0]
+
+            existusername = conn.execute("SELECT P.UserName FROM person AS P").fetchall()
+            existusername = list(zip(*existusername))[0]
+
+            if int(ssn) in existssn:
+                return render_template('Login.html', new=True, error="invalid SSN", cl=cl)
+            
+            #check to see that the inputted username is valid
+            if username in existusername:
+                return render_template("Login.html", new=True, error="username taken", cl=cl)
+            
+            conn.execute("""
+                INSERT INTO PERSON (SSN, FirstName, LastName, UserName, Password)
+                VALUES (?, ?, ?, ?, ?)
+                """, (ssn, firstname, lastname, username, password))
+
+            if accounttype == "homeowner":
+                conn.execute("""
+                INSERT INTO HOMEOWNER (SSN)
+                VALUES (?)
+                """, (ssn,))
+                return render_template('Login.html', new=False, cl=cl)
+            elif accounttype == "client":
+                conn.execute("""
+                INSERT INTO CLIENT (SSN)
+                VALUES (?)
+                """, (ssn,))
+                return render_template('Login.html', new=False, cl=cl)
+            elif accounttype == "employee":
+                conn.execute("""
+                INSERT INTO EMPLOYEE (SSN, JobType)
+                VALUES (?, ?)
+                """, (ssn, jobtype,))
+
+                print(cl)
+                if company in cl:
+                    compID = conn.execute("SELECT CompanyID FROM COMPANY WHERE CompanyName = ?", (company,)).fetchone()
+                    conn.execute("INSERT INTO WORKS_FOR (EmployeeSSN, CompanyID) VALUES (?,?)", (ssn, compID[0]))
+                else:
+                    base_id = 0
+                    # Find the first unused ID in the range 0 - 1000
+                    existing_ids = cursor.execute("""
+                        SELECT CompanyID FROM COMPANY WHERE CompanyID BETWEEN ? AND ? ORDER BY CompanyID
+                    """, (base_id + 1, base_id + 999)).fetchall()
+
+                    existing_ids_set = {row[0] for row in existing_ids}
+                    for candidate_id in range(base_id + 1, base_id + 1000):
+                        if candidate_id not in existing_ids_set:
+                            new_id = candidate_id
+                            break
+
+                    #insert new company agreement
+                    conn.execute("""
+                        INSERT INTO company (CompanyID, CompanyName, CompanyType)
+                        VALUES (?, ?, ?)
+                    """, (new_id, company, "Maintenance"))
+                    conn.execute("INSERT INTO WORKS_FOR (EmployeeSSN, CompanyID) VALUES (?,?)", (ssn, new_id,))
+
+                return render_template('Login.html', new=False, cl=cl)
+          
+    new = True
+    with sqlite3.connect("Homeapp.db") as conn:
+        cl = conn.execute("SELECT * FROM company").fetchall()
+    return render_template('Login.html', new=new, cl=cl)
+
+@app.route("/profile", methods=["GET"])
+def profile():
+    form = {
+        "SSN":0,
+        "FirstName":"",
+        "LastName":"",
+        "UserName":"",
+        "JobType":"",
+        "CompanyName":""
+    }
+    cl = None
+
+    with sqlite3.connect("Homeapp.db") as conn:
+        if session.get('access') == 'employee':
+            profile = conn.execute("SELECT P.SSN, P.FirstName, P.LastName, P.UserName, E.JobType, C.CompanyName FROM PERSON AS P INNER JOIN EMPLOYEE AS E ON P.SSN = E.SSN INNER JOIN WORKS_FOR AS W ON P.SSN = W.EmployeeSSN INNER JOIN COMPANY AS C ON W.CompanyID = C.CompanyID WHERE P.SSN = ?", (session.get('ssn'),)).fetchone()
+            form["SSN"] = session.get('ssn')
+            form["FirstName"] = profile[1]
+            form["LastName"] = profile[2]
+            form["UserName"] = profile[3]
+            form["JobType"] = profile[4]
+            form["CompanyName"] = profile[5]
+            cl = conn.execute("SELECT * FROM COMPANY").fetchall()
+        else:
+            profile = conn.execute("SELECT P.SSN, P.FirstName, P.LastName, P.UserName FROM person AS P WHERE P.SSN = ?", (session.get('ssn'),)).fetchone()
+            form["SSN"] = session.get('ssn')
+            form["FirstName"] = profile[1]
+            form["LastName"] = profile[2]
+            form["UserName"] = profile[3]
+
+    return render_template('Profile.html', form=form, cl=cl)
+
+@app.route("/update-profile", methods=["POST"])
+def update_profile():
+    #get new/updated values from html form
+    ssn = int(request.form["SSN"])
+    FirstName = request.form["FirstName"]
+    LastName = request.form["LastName"]
+    Username = request.form["UserName"]
+    Password = request.form["Password"]
+    if session.get('access') == "employee":
+        JobType = request.form["JobType"]
+        CompanyName = request.form["CompanyName"]
+
+    #reinitialize form to display to let user retry
+    if session.get('access') == "employee":
+        form = {
+            "SSN": ssn,
+            "FirstName": FirstName,
+            "LastName": LastName,
+            "Username": Username,
+            "JobType": JobType,
+            "CompanyName": CompanyName
+        }
+    else:
+        form = {
+            "SSN": ssn,
+            "FirstName": FirstName,
+            "LastName": LastName,
+            "Username": Username
+        }
+    cl = None
+
+    with sqlite3.connect("Homeapp.db") as conn:
+
+        # get existing usernames
+        existusername = conn.execute("SELECT P.UserName FROM person AS P").fetchall()
+        existusername = list(zip(*existusername))[0]
+
+        #check to see that the inputted username is valid
+        if Username in existusername:
+            usernametest = conn.execute("SELECT P.SSN FROM person AS P WHERE P.UserName = ?", (Username,)).fetchone()
+            if usernametest[0] != session.get('ssn'):
+                return render_template("Profile.html", form=form, error="username taken", cl=cl)
+
+        if session.get('access') == "employee":
+            # --- UPDATE EXISTING ---
+
+            conn.execute("UPDATE PERSON SET FirstName = ?, LastName = ?, UserName = ?, Password = ? WHERE SSN = ?", (FirstName, LastName, Username, Password, session.get('ssn')))
+            conn.execute("UPDATE EMPLOYEE SET JobType = ? WHERE SSN = ?", (JobType, session.get('ssn')))
+
+            cl = conn.execute("SELECT CompanyName FROM COMPANY").fetchall()
+            cl = list(zip(*cl))[0]
+            if CompanyName not in cl:
+                base_id = 0
+                    # Find the first unused ID in the range 0 - 1000
+                existing_ids = conn.execute("SELECT CompanyID FROM COMPANY WHERE CompanyID BETWEEN ? AND ? ORDER BY CompanyID", (base_id + 1, base_id + 999)).fetchall()
+
+                existing_ids_set = {row[0] for row in existing_ids}
+                for candidate_id in range(base_id + 1, base_id + 1000):
+                    if candidate_id not in existing_ids_set:
+                        new_id = candidate_id
+                        break
+
+                conn.execute("INSERT INTO company (CompanyID, CompanyName, CompanyType) VALUES (?, ?, ?)", (new_id, CompanyName, "Maintenance"))
+                conn.execute("UPDATE WORKS_FOR SET CompanyID = ? WHERE EmployeeSSN = ?", (new_id, session.get('ssn')))
+
+            else:
+                CompID = conn.execute("SELECT CompanyID FROM COMPANY WHERE CompanyName = ?", (CompanyName,)).fetchone()
+                conn.execute("UPDATE WORKS_FOR SET CompanyID = ? WHERE EmployeeSSN = ?", (CompID[0], session.get('ssn')))
+
+        else:
+            conn.execute("UPDATE PERSON SET FirstName = ?, LastName = ?, UserName = ?, Password = ? WHERE SSN = ?", (FirstName, LastName, Username, Password, session.get('ssn')))
+
+    #reutnr to lease agreement view page
+    return profile()
 
 @app.route("/logout", methods=["GET"])
 def logout():
     session.clear()
-    return render_template("Login.html")
+    return render_template("Login.html", new = False)
 
 @app.route("/contractor-view", methods=["GET"])
 def contractor():
@@ -585,7 +795,6 @@ def my_request_view():
         with sqlite3.connect("Homeapp.db") as conn:
             requests = conn.execute("SELECT r.PropertyID, r.RoomID, p.OwnerSSN, per1.FirstName, per1.LastName, per1.Phone FROM REQUESTS r INNER JOIN PROPERTY p ON p.PropertyID = r.PropertyID INNER JOIN PERSON per1 ON p.OwnerSSN = per1.SSN INNER JOIN PERSON per2 ON r.ClientSSN = per2.SSN WHERE ClientSSN = ?", (session.get('ssn'),)).fetchall()
 
-    print(requests)
     return render_template("RequestView.html", requests=requests)
 
 @app.route("/my-requests-delete/<int:property_id>/<int:room_id>/<int:client_ssn>", methods=["GET"])

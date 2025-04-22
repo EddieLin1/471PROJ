@@ -3,6 +3,28 @@
 {% block title %}index{% endblock %}
 
 {% block content %}
+<script>
+  function toggleLoginFields() {
+    const type = document.getElementById("accounttype").value;
+    const jobfield = document.getElementById("jobtypefield");
+    const companyfield = document.getElementById("companytypefield");
+
+    if (type === "employee") {
+      jobfield.style.display = "block";
+      companyfield.style.display = "block";
+    } else {
+      jobfield.style.display = "none";
+      companyfield.style.display = "none";
+    }
+  }
+
+  // Initialize fields correctly on page load
+  document.addEventListener("DOMContentLoaded", function () {
+    togglePropertyFields();
+  });
+</script>
+
+
 <div class="container">
   <h2>Rentify Login</h2>
   {% if error %}
@@ -10,10 +32,41 @@
       {{ error }}
     </div>
   {% endif %}
+  {% if not new %}
   <form action="/login" method="post">
     <input type="text" placeholder="Username" name="username" required>
     <input type="password" placeholder="Password" name="password" required>
     <button type="submit">Login</button>
   </form>
+  {% else %}
+  <a href="/login" class="btn btn-secondary">Back</a>
+
+  <form action="/new_account" method="POST">
+    <input type="number" placeholder="SSN" name="SSN" required>
+    <input type="text" placeholder="First Name" name="firstname" required>
+    <input type="text" placeholder="Last Name" name="lastname" required>
+    <input type="text" placeholder="Username" name="username" required>
+    <input type="password" placeholder="Password" name="password" required>
+    <select class="form-select" id="accounttype" name="accounttype" required onchange="toggleLoginFields()">
+      <option value="homeowner">Homeowner</option>
+      <option value="client">Client</option>
+      <option value="employee">Employee</option>
+    </select>
+
+    <input type="text" placeholder="Job Type" name="jobtype" id="jobtypefield" style="display: none;">
+    <input list="options" placeholder="Company" id="companytypefield" name="company" style="display: none;"/>
+    <datalist id="options">
+      {% for c in cl %}
+      <option value="{{ c[1] }}">
+      {% endfor %}
+      <option value="Independent">
+    </datalist>
+
+    <button type="submit">Create Account</button>
+  </form>
+  {% endif %}
+  {% if not new %}
+  <a href="/new_account" method="GET">New? Create an Account</a>
+  {% endif %}
 </div>
 {% endblock %}

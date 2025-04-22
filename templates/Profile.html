@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Property View Specific{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+  <h2 class="mb-4">
+    Profile
+  </h2>
+  <!--Fix next line-->
+  {% if session.get('access') == 'employee' %}
+    <a href="/service-view" class="btn btn-secondary">Back</a>
+  {% else %}
+  <a href="/property-view" class="btn btn-secondary">Back</a>
+  {% endif %}
+  {% if error %}
+  <div class="alert alert-danger" role="alert">
+    {{ error }}
+  </div>
+  {% endif %}
+
+  <div class="row">
+    <div class="col-md-7">
+      <form method="POST" action="/update-profile">
+        <input type="hidden" name="SSN" value="{{ form.SSN }}">
+
+        <div class="mb-3">
+          <label for="FirstName" class="form-label">First Name</label>
+          <input type="text" class="form-control" name="FirstName" value="{{ form.FirstName }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="LastName" class="form-label">Last Name</label>
+            <input type="text" class="form-control" name="LastName" value="{{ form.LastName }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="UserName" class="form-label">Username</label>
+            <input type="text" class="form-control" name="UserName" value="{{ form.UserName }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="Password" class="form-label">Password</label>
+            <input type="password" class="form-control" name="Password" required>
+        </div>
+        {% if session.get('access') == "employee" %}
+        <div class="mb-3">
+            <label for="JobType" class="form-label">Job Type</label>
+            <input type="text" class="form-control" name="JobType" value="{{ form.JobType }}">
+        </div>
+        <div class="mb-3">
+            <label for="CompanyName" class="form-label">Company Name</label>
+            <input list="options" class="form-control" placeholder="Company Name" name="CompanyName" value="{{ form.CompanyName }}" required/>
+            <datalist id="options">
+                {% for c in cl %}
+                <option value="{{ c[1] }}">
+                {% endfor %}
+                <option value="Independent">
+            </datalist>
+        </div>
+        {% endif %}
+
+
+        <button type="submit" class="btn btn-primary">
+          Update Profile
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
