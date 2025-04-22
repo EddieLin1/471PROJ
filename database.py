@@ -128,6 +128,9 @@ def insert_dummy_data():
     cursor.execute("PRAGMA foreign_keys = ON;")
 
     # PERSON
+    #1~ -> client
+    #2~ -> homeowner
+    #3~ -> employee
     persons = [
         (1001, "Alice", "Smith", "alice", "pass123"),
         (1002, "Bob", "Johnson", "bob", "pass123"),
