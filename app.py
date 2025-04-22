@@ -23,7 +23,7 @@ def user():
     return render_template("UserView.html", users=users)
 
 @app.route("/login", methods=["GET", "POST"])
-def login():
+def login(new):
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
@@ -56,7 +56,48 @@ def login():
         # Return the login page with an error message
         return render_template("Login.html", error="Invalid username or password.")
     
-    return render_template('Login.html')
+    return render_template('Login.html', new=new)
+
+@app.route("/new_account", methods=["GET", "POST"])
+def new_account():
+    if request.method == "POST":
+        ssn = request.form["SSN"]
+        username = request.form["username"]
+        password = request.form["password"]
+        firstname = request.form["firstname"]
+        lastname = request.form["lastname"]
+        accounttype = request.form["accounttype"]
+
+        with sqlite3.connect("Homeapp.db") as conn:
+            cursor = conn.cursor()
+            existssn = conn.execute("SELECT SSN FROM person").fetchall()
+            existssn = list(zip(*existssn))[0]
+#            print(existssn)
+
+            if int(ssn) in existssn:
+                return render_template('Login.html', new=True, error="invalid SSN")
+            
+            cursor.execute("""
+                INSERT INTO PERSON (SSN, FirstName, LastName, UserName, Password)
+                VALUES (?, ?, ?, ?, ?)
+                """, (ssn, firstname, lastname, username, password))
+
+            if accounttype == "homeowner":
+                cursor.execute("""
+                INSERT INTO HOMEOWNER (SSN)
+                VALUES (?)
+                """, (ssn,))
+                return render_template('Login.html', new=new)
+            elif accounttype == "client":
+                cursor.execute("""
+                INSERT INTO CLIENT (SSN)
+                VALUES (?)
+                """, (ssn,))
+                return render_template('Login.html', new=new)
+        
+    new = True
+    return render_template('Login.html', new=new)
+
 
 @app.route("/logout", methods=["GET"])
 def logout():
