@@ -74,7 +74,8 @@ def login():
         return render_template("Login.html", error="Invalid username or password.")
     
     new=False
-    return render_template('Login.html', new=new)
+    cl=None
+    return render_template('Login.html', new=new, cl=cl)
 
 @app.route("/new_account", methods=["GET", "POST"])
 def new_account():
@@ -87,43 +88,178 @@ def new_account():
         accounttype = request.form["accounttype"]
         if accounttype == "employee":
             jobtype = request.form["jobtype"]
+            company = request.form["company"]
 
         with sqlite3.connect("Homeapp.db") as conn:
             cursor = conn.cursor()
             existssn = conn.execute("SELECT SSN FROM person").fetchall()
             existssn = list(zip(*existssn))[0]
-#            print(existssn)
+
+            cl = conn.execute("SELECT CompanyName FROM company").fetchall()
+            cl = list(zip(*cl))[0]
 
             if int(ssn) in existssn:
-                return render_template('Login.html', new=True, error="invalid SSN")
+                return render_template('Login.html', new=True, error="invalid SSN", cl=cl)
             
-            cursor.execute("""
+            conn.execute("""
                 INSERT INTO PERSON (SSN, FirstName, LastName, UserName, Password)
                 VALUES (?, ?, ?, ?, ?)
                 """, (ssn, firstname, lastname, username, password))
 
             if accounttype == "homeowner":
-                cursor.execute("""
+                conn.execute("""
                 INSERT INTO HOMEOWNER (SSN)
                 VALUES (?)
                 """, (ssn,))
-                return render_template('Login.html', new=False)
+                return render_template('Login.html', new=False, cl=cl)
             elif accounttype == "client":
-                cursor.execute("""
+                conn.execute("""
                 INSERT INTO CLIENT (SSN)
                 VALUES (?)
                 """, (ssn,))
-                return render_template('Login.html', new=False)
+                return render_template('Login.html', new=False, cl=cl)
             elif accounttype == "employee":
-                cursor.execute("""
+                conn.execute("""
                 INSERT INTO EMPLOYEE (SSN, JobType)
                 VALUES (?, ?)
                 """, (ssn, jobtype,))
-                return render_template('Login.html', new=False)
+
+                print(cl)
+                if company in cl:
+                    compID = conn.execute("SELECT CompanyID FROM COMPANY WHERE CompanyName = ?", (company,)).fetchone()
+                    conn.execute("INSERT INTO WORKS_FOR (EmployeeSSN, CompanyID) VALUES (?,?)", (ssn, compID[0]))
+                else:
+                    base_id = 0
+                    # Find the first unused ID in the range 0 - 1000
+                    existing_ids = cursor.execute("""
+                        SELECT CompanyID FROM COMPANY WHERE CompanyID BETWEEN ? AND ? ORDER BY CompanyID
+                    """, (base_id + 1, base_id + 999)).fetchall()
+
+                    existing_ids_set = {row[0] for row in existing_ids}
+                    for candidate_id in range(base_id + 1, base_id + 1000):
+                        if candidate_id not in existing_ids_set:
+                            new_id = candidate_id
+                            break
+
+                    #insert new company agreement
+                    conn.execute("""
+                        INSERT INTO company (CompanyID, CompanyName, CompanyType)
+                        VALUES (?, ?, ?)
+                    """, (new_id, company, "Maintenance"))
+                    conn.execute("INSERT INTO WORKS_FOR (EmployeeSSN, CompanyID) VALUES (?,?)", (ssn, new_id,))
+
+                return render_template('Login.html', new=False, cl=cl)
           
     new = True
-    return render_template('Login.html', new=new)
+    with sqlite3.connect("Homeapp.db") as conn:
+        cl = conn.execute("SELECT * FROM company").fetchall()
+    return render_template('Login.html', new=new, cl=cl)
 
+@app.route("/profile", methods=["GET"])
+def profile():
+    form = {
+        "SSN":0,
+        "FirstName":"",
+        "LastName":"",
+        "UserName":"",
+        "JobType":"",
+        "CompanyName":""
+    }
+    cl = None
+
+    with sqlite3.connect("Homeapp.db") as conn:
+        if session.get('access') == 'employee':
+            profile = conn.execute("SELECT P.SSN, P.FirstName, P.LastName, P.UserName, E.JobType, C.CompanyName FROM PERSON AS P INNER JOIN EMPLOYEE AS E ON P.SSN = E.SSN INNER JOIN WORKS_FOR AS W ON P.SSN = W.EmployeeSSN INNER JOIN COMPANY AS C ON W.CompanyID = C.CompanyID WHERE P.SSN = ?", (session.get('ssn'),)).fetchone()
+            form["SSN"] = session.get('ssn')
+            form["FirstName"] = profile[1]
+            form["LastName"] = profile[2]
+            form["UserName"] = profile[3]
+            form["JobType"] = profile[4]
+            form["CompanyName"] = profile[5]
+            cl = conn.execute("SELECT * FROM COMPANY").fetchall()
+        else:
+            profile = conn.execute("SELECT P.SSN, P.FirstName, P.LastName, P.UserName FROM person AS P WHERE P.SSN = ?", (session.get('ssn'),)).fetchone()
+            form["SSN"] = session.get('ssn')
+            form["FirstName"] = profile[1]
+            form["LastName"] = profile[2]
+            form["UserName"] = profile[3]
+
+    return render_template('Profile.html', form=form, cl=cl)
+
+@app.route("/update-profile", methods=["POST"])
+def update_profile():
+    #get new/updated values from html form
+    ssn = int(request.form["SSN"])
+    FirstName = request.form["FirstName"]
+    LastName = request.form["LastName"]
+    Username = request.form["UserName"]
+    Password = request.form["Password"]
+    if session.get('access') == "employee":
+        JobType = request.form["JobType"]
+        CompanyName = request.form["CompanyName"]
+
+    #reinitialize form to display to let user retry
+    if session.get('access') == "employee":
+        form = {
+            "SSN": ssn,
+            "FirstName": FirstName,
+            "LastName": LastName,
+            "Username": Username,
+            "JobType": JobType,
+            "CompanyName": CompanyName
+        }
+    else:
+        form = {
+            "SSN": ssn,
+            "FirstName": FirstName,
+            "LastName": LastName,
+            "Username": Username
+        }
+    cl = None
+
+    with sqlite3.connect("Homeapp.db") as conn:
+
+        # get existing usernames
+        existusername = conn.execute("SELECT P.UserName FROM person AS P").fetchall()
+        existusername = list(zip(*existusername))[0]
+
+        #check to see that the inputted username is valid
+        if Username in existusername:
+            usernametest = conn.execute("SELECT P.SSN FROM person AS P WHERE P.UserName = ?", (Username,)).fetchone()
+            if usernametest[0] != session.get('ssn'):
+                return render_template("Profile.html", form=form, error="username taken", cl=cl)
+
+        if session.get('access') == "employee":
+            # --- UPDATE EXISTING ---
+
+            conn.execute("UPDATE PERSON SET FirstName = ?, LastName = ?, UserName = ?, Password = ? WHERE SSN = ?", (FirstName, LastName, Username, Password, session.get('ssn')))
+            conn.execute("UPDATE EMPLOYEE SET JobType = ? WHERE SSN = ?", (JobType, session.get('ssn')))
+
+            cl = conn.execute("SELECT CompanyName FROM COMPANY").fetchall()
+            cl = list(zip(*cl))[0]
+            if CompanyName not in cl:
+                base_id = 0
+                    # Find the first unused ID in the range 0 - 1000
+                existing_ids = conn.execute("SELECT CompanyID FROM COMPANY WHERE CompanyID BETWEEN ? AND ? ORDER BY CompanyID", (base_id + 1, base_id + 999)).fetchall()
+
+                existing_ids_set = {row[0] for row in existing_ids}
+                for candidate_id in range(base_id + 1, base_id + 1000):
+                    if candidate_id not in existing_ids_set:
+                        new_id = candidate_id
+                        break
+
+                conn.execute("INSERT INTO company (CompanyID, CompanyName, CompanyType) VALUES (?, ?, ?)", (new_id, CompanyName, "Maintenance"))
+                conn.execute("UPDATE WORKS_FOR SET CompanyID = ? WHERE EmployeeSSN = ?", (new_id, session.get('ssn')))
+
+            else:
+                CompID = conn.execute("SELECT CompanyID FROM COMPANY WHERE CompanyName = ?", (CompanyName,)).fetchone()
+                conn.execute("UPDATE WORKS_FOR SET CompanyID = ? WHERE EmployeeSSN = ?", (CompID[0], session.get('ssn')))
+
+        else:
+            conn.execute("UPDATE PERSON SET FirstName = ?, LastName = ?, UserName = ?, Password = ? WHERE SSN = ?", (FirstName, LastName, Username, Password, session.get('ssn')))
+
+    #reutnr to lease agreement view page
+    return profile()
 
 @app.route("/logout", methods=["GET"])
 def logout():
@@ -365,7 +501,6 @@ def property_specific(property_id):
                             FROM ROOM r
                             WHERE r.PropertyID = ?
                         """, (property_id,)).fetchall()
-                print(rs)
 
     return render_template("PropertyEdit.html", form=form, rs=rs)
 
@@ -464,7 +599,6 @@ def room_specific(propertyID, roomID):
                 form["condition"] = l[2]
             #get employees working on the room
             es = conn.execute("SELECT * FROM WORKS_ON INNER JOIN EMPLOYEE ON WORKS_ON.ESSN = EMPLOYEE.SSN INNER JOIN PERSON ON EMPLOYEE.SSN = PERSON.SSN WHERE PropertyID = ? AND RoomID = ?", (propertyID, roomID, )).fetchall()
-            print(es)
     #return page
     return render_template("RoomEdit.html", form=form, es=es)
 
@@ -634,7 +768,6 @@ def my_request_view():
         with sqlite3.connect("Homeapp.db") as conn:
             requests = conn.execute("SELECT r.PropertyID, r.RoomID, p.OwnerSSN, per1.FirstName, per1.LastName FROM REQUESTS r INNER JOIN PROPERTY p ON p.PropertyID = r.PropertyID INNER JOIN PERSON per1 ON p.OwnerSSN = per1.SSN INNER JOIN PERSON per2 ON r.ClientSSN = per2.SSN WHERE ClientSSN = ?", (session.get('ssn'),)).fetchall()
 
-    print(requests)
     return render_template("RequestView.html", requests=requests)
 
 @app.route("/my-requests-delete/<int:property_id>/<int:room_id>/<int:client_ssn>", methods=["GET"])

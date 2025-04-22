@@ -24,6 +24,7 @@
                         <a href="/lease-agreement-view" class="text-white me-3">Lease Agreements</a>
                         <a href="/contractor-view" class="text-white me-3">Contractor List</a>
                         <a href="/my-requests" class="text-white me-3">My Requests</a>
+                        <a href="/profile" class="text-white me-3">My Profile</a>
                     </nav>
                 {% elif session.get('access') == 'client' %}
                     <nav> 
@@ -31,10 +32,12 @@
                         <a href="/lease-agreement-view" class="text-white me-3">Lease Agreements</a>
                         <a href="/property-view-personal" class="text-white me-3">My Renting</a>
                         <a href="/my-requests" class="text-white me-3">My Requests</a>
+                        <a href="/profile" class="text-white me-3">My Profile</a>
                     </nav>
                 {% elif session.get('access') == 'employee' %}
                 <nav>
                     <a href="/service-view" class="text-white me-3">Service</a>
+                    <a href="/profile" class="text-white me-3">My Profile</a>
                 </nav>
                 {% endif %} 
             </div>

@@ -34,7 +34,7 @@ def init_db():
 
     CREATE TABLE IF NOT EXISTS COMPANY (
         CompanyID INTEGER PRIMARY KEY,
-        CompanyName TEXT,
+        CompanyName TEXT UNIQUE,
         CompanyType TEXT
     );
 

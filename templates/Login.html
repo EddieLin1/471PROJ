@@ -7,11 +7,14 @@
   function toggleLoginFields() {
     const type = document.getElementById("accounttype").value;
     const jobfield = document.getElementById("jobtypefield");
+    const companyfield = document.getElementById("companytypefield");
 
     if (type === "employee") {
       jobfield.style.display = "block";
+      companyfield.style.display = "block";
     } else {
       jobfield.style.display = "none";
+      companyfield.style.display = "none";
     }
   }
 
@@ -36,7 +39,7 @@
     <button type="submit">Login</button>
   </form>
   {% else %}
-  <form action="/new_account" method="post">
+  <form action="/new_account" method="POST">
     <input type="number" placeholder="SSN" name="SSN" required>
     <input type="text" placeholder="First Name" name="firstname" required>
     <input type="text" placeholder="Last Name" name="lastname" required>
@@ -47,8 +50,17 @@
       <option value="client">Client</option>
       <option value="employee">Employee</option>
     </select>
-    <input type="text" placeholder="Job Type" name="jobtype" required id="jobtypefield" style="display: none; width:100%">
-    <button type="submit">Login</button>
+
+    <input type="text" placeholder="Job Type" name="jobtype" id="jobtypefield" style="display: none;">
+    <input list="options" placeholder="Company" id="companytypefield" name="company" style="display: none;"/>
+    <datalist id="options">
+      {% for c in cl %}
+      <option value="{{ c[1] }}">
+      {% endfor %}
+      <option value="Independent">
+    </datalist>
+
+    <button type="submit">Create Account</button>
   </form>
   {% endif %}
   {% if not new %}
