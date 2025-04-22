@@ -24,7 +24,7 @@
                         <a href="/lease-agreement-view" class="text-white me-3 {% if request.path == '/lease-agreement-view' %}nav-active{% endif %}">Lease Agreements</a>
                         <a href="/contractor-view" class="text-white me-3 {% if request.path == '/contractor-view' %}nav-active{% endif %}">Contractor List</a>
                         <a href="/my-requests" class="text-white me-3 {% if request.path == '/my-requests' %}nav-active{% endif %}">My Requests</a>
-                        <a href="/profile" class="text-white me-3">My Profile</a>
+                        <a href="/profile" class="text-white me-3 {% if request.path == '/profile' %}nav-active{% endif %}">My Profile</a>
                     </nav>
                 {% elif session.get('access') == 'client' %}
                     <nav>
@@ -37,7 +37,7 @@
                 {% elif session.get('access') == 'employee' %}
                     <nav>
                         <a href="/service-view" class="text-white me-3 {% if request.path == '/service-view' %}nav-active{% endif %}">Service</a>
-                        <a href="/profile" class="text-white me-3">My Profile</a>
+                        <a href="/profile" class="text-white me-3 {% if request.path == '/profile' %}nav-active{% endif %}">My Profile</a>
                 </nav>
                 {% endif %}
             </div>
