@@ -11,4 +11,5 @@ INSTALL PACKAGES (do once)
 pip install Flask
 
 RUN
+python3 database.py or python database.py
 python3 app.py or python app.py
