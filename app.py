@@ -397,7 +397,6 @@ def room_specific(propertyID, roomID):
                 form["condition"] = l[2]
             #get employees working on the room
             es = conn.execute("SELECT * FROM WORKS_ON INNER JOIN EMPLOYEE ON WORKS_ON.ESSN = EMPLOYEE.SSN INNER JOIN PERSON ON EMPLOYEE.SSN = PERSON.SSN WHERE PropertyID = ? AND RoomID = ?", (propertyID, roomID, )).fetchall()
-            print(es)
     #return page
     return render_template("RoomEdit.html", form=form, es=es)
 
