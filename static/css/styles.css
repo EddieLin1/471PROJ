@@ -79,3 +79,29 @@ header nav a:hover {
     border-radius: 4px;
     font-weight: bold;
 }
+
+.legal-link-section {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.legal-link-section h4 {
+  margin-bottom: 10px;
+  font-size: 1.2em;
+  color: #444;
+}
+
+.legal-link-btn {
+  background-color: white;
+  color: black;
+  border: 2px solid #555555;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.legal-link-btn:hover {
+  background-color: #555555;
+  color: white;
+}

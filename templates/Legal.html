@@ -5,7 +5,27 @@
 {% block content %}
 <div class="container mt-5">
     <h2>Legal Information</h2>
-    <p>This is the legal disclaimer or terms of use for the Rentify application.</p>
+
+    <div class="legal-link-section">
+        <h4>Starting a Tenancy</h4>
+        <a href="https://www.alberta.ca/starting-a-tenancy" target="_blank" class="btn legal-link-btn">Learn More</a>
+    </div>
+
+    <div class="legal-link-section">
+        <h4>During a Tenancy</h4>
+        <a href="https://www.alberta.ca/during-a-tenancy" target="_blank" class="btn legal-link-btn">Learn More</a>
+    </div>
+
+    <div class="legal-link-section">
+        <h4>Ending a Tenancy</h4>
+        <a href="https://www.alberta.ca/ending-a-tenancy" target="_blank" class="btn legal-link-btn">Learn More</a>
+    </div>
+
+    <div class="legal-link-section">
+        <h4>Common Problems for Landlords and Tenants</h4>
+        <a href="https://www.alberta.ca/common-problems-landlords-and-tenants" target="_blank" class="btn legal-link-btn">Learn More</a>
+    </div>
+
     <a href="{{ request.referrer or url_for('property') }}" class="btn btn-secondary mt-3">Back</a>
 </div>
 {% endblock %}
