@@ -39,6 +39,8 @@
     <button type="submit">Login</button>
   </form>
   {% else %}
+  <a href="/login" class="btn btn-secondary">Back</a>
+
   <form action="/new_account" method="POST">
     <input type="number" placeholder="SSN" name="SSN" required>
     <input type="text" placeholder="First Name" name="firstname" required>
