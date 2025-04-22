@@ -67,7 +67,7 @@ def logout():
 def contractor():
 
     with sqlite3.connect("Homeapp.db") as conn:
-        emps = conn.execute("SELECT * FROM employee e INNER JOIN person p ON e.SSN == p.SSN").fetchall()
+        emps = conn.execute("SELECT e.SSN, e.JobType, p.FirstName, p.LastName, c.CompanyName FROM employee e INNER JOIN person p ON e.SSN == p.SSN INNER JOIN works_for w ON w.EmployeeSSN = e.SSN INNER JOIN company c ON w.CompanyID = c.CompanyID").fetchall()
     
     return render_template("ContractorView.html", emps=emps)
 
