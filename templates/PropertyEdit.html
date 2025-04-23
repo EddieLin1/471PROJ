@@ -140,7 +140,9 @@
           <tr>
             <th>Room Number</th>
             <th>Condition</th>
+            {% if session.get('access') == 'homeowner' or personal %}
             <th>Edit</th>
+            {% endif %}
             {% if session.get('access') == 'homeowner' %}
             <th>Remove</th>
             {% endif %}
@@ -156,10 +158,11 @@
             <tr>
               <td>{{ r[1] }}</td>  
               <td>{{ r[2] }}</td> 
+              {% if session.get('access') == 'homeowner' or personal %}
               <td>
-                <a href="{{ url_for('room_specific', propertyID=form.property_id, roomID=r[1]) }}">Edit</a>
-                
+                <a href="{{ url_for('room_specific', propertyID=form.property_id, roomID=r[1]) }}">Edit</a>  
               </td>
+              {% endif %}
               {% if session.get('access') == 'homeowner' %}
               <td>
                 <a href="{{ url_for('delete_room', propertyID=form.property_id, roomID=r[1]) }}"
