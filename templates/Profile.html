@@ -41,6 +41,11 @@
             <label for="Password" class="form-label">Password</label>
             <input type="password" class="form-control" name="Password" required>
         </div>
+        <div class="mb-3">
+            <label for="Phone" class="form-label">Phone</label>
+            <input type="text" class="form-control" name="Phone" value="{{ form.Phone }}" required>
+        </div>
+
         {% if session.get('access') == "employee" %}
         <div class="mb-3">
             <label for="JobType" class="form-label">Job Type</label>

@@ -85,6 +85,7 @@ def new_account():
         password = request.form["password"]
         firstname = request.form["firstname"]
         lastname = request.form["lastname"]
+        phone = request.form["phone"]
         accounttype = request.form["accounttype"]
         if accounttype == "employee":
             jobtype = request.form["jobtype"]
@@ -109,9 +110,9 @@ def new_account():
                 return render_template("Login.html", new=True, error="username taken", cl=cl)
             
             conn.execute("""
-                INSERT INTO PERSON (SSN, FirstName, LastName, UserName, Password)
-                VALUES (?, ?, ?, ?, ?)
-                """, (ssn, firstname, lastname, username, password))
+                INSERT INTO PERSON (SSN, FirstName, LastName, UserName, Password, Phone)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """, (ssn, firstname, lastname, username, password, phone))
 
             if accounttype == "homeowner":
                 conn.execute("""
@@ -169,6 +170,7 @@ def profile():
         "FirstName":"",
         "LastName":"",
         "UserName":"",
+        "Phone":"",
         "JobType":"",
         "CompanyName":""
     }
@@ -176,20 +178,22 @@ def profile():
 
     with sqlite3.connect("Homeapp.db") as conn:
         if session.get('access') == 'employee':
-            profile = conn.execute("SELECT P.SSN, P.FirstName, P.LastName, P.UserName, E.JobType, C.CompanyName FROM PERSON AS P INNER JOIN EMPLOYEE AS E ON P.SSN = E.SSN INNER JOIN WORKS_FOR AS W ON P.SSN = W.EmployeeSSN INNER JOIN COMPANY AS C ON W.CompanyID = C.CompanyID WHERE P.SSN = ?", (session.get('ssn'),)).fetchone()
+            profile = conn.execute("SELECT P.SSN, P.FirstName, P.LastName, P.UserName, P.Phone, E.JobType, C.CompanyName FROM PERSON AS P INNER JOIN EMPLOYEE AS E ON P.SSN = E.SSN INNER JOIN WORKS_FOR AS W ON P.SSN = W.EmployeeSSN INNER JOIN COMPANY AS C ON W.CompanyID = C.CompanyID WHERE P.SSN = ?", (session.get('ssn'),)).fetchone()
             form["SSN"] = session.get('ssn')
             form["FirstName"] = profile[1]
             form["LastName"] = profile[2]
             form["UserName"] = profile[3]
-            form["JobType"] = profile[4]
-            form["CompanyName"] = profile[5]
+            form["Phone"] = profile[4]
+            form["JobType"] = profile[5]
+            form["CompanyName"] = profile[6]
             cl = conn.execute("SELECT * FROM COMPANY").fetchall()
         else:
-            profile = conn.execute("SELECT P.SSN, P.FirstName, P.LastName, P.UserName FROM person AS P WHERE P.SSN = ?", (session.get('ssn'),)).fetchone()
+            profile = conn.execute("SELECT P.SSN, P.FirstName, P.LastName, P.UserName, P.Phone FROM person AS P WHERE P.SSN = ?", (session.get('ssn'),)).fetchone()
             form["SSN"] = session.get('ssn')
             form["FirstName"] = profile[1]
             form["LastName"] = profile[2]
             form["UserName"] = profile[3]
+            form["Phone"] = profile[4]
 
     return render_template('Profile.html', form=form, cl=cl)
 
@@ -201,6 +205,7 @@ def update_profile():
     LastName = request.form["LastName"]
     Username = request.form["UserName"]
     Password = request.form["Password"]
+    Phone = request.form["Phone"]
     if session.get('access') == "employee":
         JobType = request.form["JobType"]
         CompanyName = request.form["CompanyName"]
@@ -212,6 +217,7 @@ def update_profile():
             "FirstName": FirstName,
             "LastName": LastName,
             "Username": Username,
+            "Phone": Phone,
             "JobType": JobType,
             "CompanyName": CompanyName
         }
@@ -220,7 +226,8 @@ def update_profile():
             "SSN": ssn,
             "FirstName": FirstName,
             "LastName": LastName,
-            "Username": Username
+            "Username": Username,
+            "Phone": Phone
         }
     cl = None
 
@@ -239,7 +246,7 @@ def update_profile():
         if session.get('access') == "employee":
             # --- UPDATE EXISTING ---
 
-            conn.execute("UPDATE PERSON SET FirstName = ?, LastName = ?, UserName = ?, Password = ? WHERE SSN = ?", (FirstName, LastName, Username, Password, session.get('ssn')))
+            conn.execute("UPDATE PERSON SET FirstName = ?, LastName = ?, UserName = ?, Password = ?, Phone = ? WHERE SSN = ?", (FirstName, LastName, Username, Password, Phone, session.get('ssn')))
             conn.execute("UPDATE EMPLOYEE SET JobType = ? WHERE SSN = ?", (JobType, session.get('ssn')))
 
             cl = conn.execute("SELECT CompanyName FROM COMPANY").fetchall()
@@ -263,7 +270,7 @@ def update_profile():
                 conn.execute("UPDATE WORKS_FOR SET CompanyID = ? WHERE EmployeeSSN = ?", (CompID[0], session.get('ssn')))
 
         else:
-            conn.execute("UPDATE PERSON SET FirstName = ?, LastName = ?, UserName = ?, Password = ? WHERE SSN = ?", (FirstName, LastName, Username, Password, session.get('ssn')))
+            conn.execute("UPDATE PERSON SET FirstName = ?, LastName = ?, UserName = ?, Password = ?, Phone = ? WHERE SSN = ?", (FirstName, LastName, Username, Password, Phone, session.get('ssn')))
 
     #reutnr to lease agreement view page
     return profile()
