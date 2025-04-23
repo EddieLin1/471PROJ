@@ -448,7 +448,8 @@ def property():
             ps = conn.execute("SELECT * FROM property").fetchall()
     else:
         with sqlite3.connect("Homeapp.db") as conn:
-            ps = conn.execute("SELECT * FROM property WHERE OwnerSSN = ?", (session.get('ssn'),)).fetchall()
+            ps = conn.execute("SELECT property.PropertyID, property.Address, property.Description, property.OwnerSSN, person.FirstName, person.LastName FROM property INNER JOIN person ON property.OwnerSSN = person.SSN WHERE OwnerSSN = ?", (session.get('ssn'),)).fetchall()
+            print(ps)
 
     return render_template("PropertyView.html", ps=ps)
 
